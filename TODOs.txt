@@ -1,0 +1,14 @@
+General TODOs (add some as you think of them):
+-allow multiple rank selection/editing
+-implement FTA (+ XML support)
+
+-have confirmation box for deleting (full) move (we already have this for ranks!)
+-when we try to close and then choose to save as, the window shouldn't close if we hit “cancel”
+-preserve line type in gate turns
+
+-playback with uploaded mp3 (or other music type?) file
+-export to video(?)
+-be able to delete whole moves (EXCEPT Move 0)
+-have confirmation box for deleting (full) move or rank
+
+- have fun
