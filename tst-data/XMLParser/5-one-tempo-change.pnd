@@ -1,6 +1,6 @@
 <drill>
-	<tempo-change>
-		<measure-number>10</measure-number>
-		<tempo>180</tempo>
-	</tempo-change>
+    <tempo-change>
+        <measure-number>10</measure-number>
+        <tempo>180</tempo>
+    </tempo-change>
 </drill>
