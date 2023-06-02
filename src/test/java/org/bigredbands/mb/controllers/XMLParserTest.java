@@ -1,4 +1,4 @@
-package org.bigredbands.mb.tst;
+package org.bigredbands.mb.controllers;
 
 import java.io.File;
 import java.io.IOException;
@@ -7,9 +7,6 @@ import java.util.HashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import junit.framework.Assert;
-
-import org.bigredbands.mb.controllers.XMLGenerator;
 import org.bigredbands.mb.controllers.XMLParser;
 import org.bigredbands.mb.exceptions.DrillXMLException;
 import org.bigredbands.mb.models.CommandPair;
@@ -17,95 +14,175 @@ import org.bigredbands.mb.models.DrillInfo;
 import org.bigredbands.mb.models.Move;
 import org.bigredbands.mb.models.Point;
 import org.bigredbands.mb.models.RankPosition;
+import org.junit.Assert;
 import org.junit.Test;
-import org.junit.BeforeClass;
 import org.xml.sax.SAXException;
 
-public class XMLGeneratorTest {
+public class XMLParserTest {
 
-    private static final String outputPath = "out/test/XMLGeneratorTest/";
+    //TODO: tests with different line types (this one is very important) and all of the commands
 
-    @BeforeClass
-    public static void createOutputDir() {
-        // Create the output directory if it doesn't already exist
-        new File(outputPath).mkdirs();
-    }
-
-    @Test
-    public void testOneTempoChange() throws ParserConfigurationException, SAXException, IOException, DrillXMLException {
-        //create the expected DrillInfo
-        DrillInfo expectedDrillInfo = new DrillInfo();
-        expectedDrillInfo.getTempoHashMap().put(10, 180);
-
-        //test the generator output with the parser
-        testGeneratorAndParser(expectedDrillInfo, new File(outputPath + "1-one-tempo-change-output.pnd"));
-    }
-
-    @Test
-    public void testMultipleTempoChanges() throws ParserConfigurationException, SAXException, IOException, DrillXMLException {
-        //create the expected DrillInfo
-        DrillInfo expectedDrillInfo = new DrillInfo();
-        expectedDrillInfo.getTempoHashMap().put(10, 180);
-        expectedDrillInfo.getTempoHashMap().put(20, 190);
-        expectedDrillInfo.getTempoHashMap().put(30, 200);
-
-        //test the generator output with the parser
-        testGeneratorAndParser(expectedDrillInfo, new File(outputPath + "2-multiple-tempo-change-output.pnd"));
-    }
-
-    @Test
-    public void testOneCountChange() throws ParserConfigurationException, SAXException, IOException, DrillXMLException {
-        //create the expected DrillInfo
-        DrillInfo expectedDrillInfo = new DrillInfo();
-        expectedDrillInfo.getCountsHashMap().put(10, 4);
-
-        //test the generator output with the parser
-        testGeneratorAndParser(expectedDrillInfo, new File(outputPath + "3-one-counts-change-output.pnd"));
-    }
-
-    @Test
-    public void testMultipleCountChanges() throws ParserConfigurationException, SAXException, IOException, DrillXMLException {
-        //create the expected DrillInfo
-        DrillInfo expectedDrillInfo = new DrillInfo();
-        expectedDrillInfo.getCountsHashMap().put(10, 4);
-        expectedDrillInfo.getCountsHashMap().put(20, 5);
-        expectedDrillInfo.getCountsHashMap().put(30, 6);
-
-        //test the generator output with the parser
-        testGeneratorAndParser(expectedDrillInfo, new File(outputPath + "4-multiple-counts-change-output.pnd"));
-    }
+    private final String path = "src/test/resources/XMLParser/";
 
     @Test
     public void testEmptyProject() throws ParserConfigurationException, SAXException, IOException, DrillXMLException {
-        //test the generator output with the parser
-        testGeneratorAndParser(new DrillInfo(), new File(outputPath + "5-empty-project-output.pnd"));
+        //set the file url
+        File testFile = new File(path + "1-empty-project.pnd");
+
+        //create the xml parser
+        XMLParser parser = new XMLParser();
+
+        //parse the file
+        DrillInfo drillInfo = parser.load(testFile);
+
+        //test
+        Assert.assertEquals(new DrillInfo(), drillInfo);
     }
 
     @Test
     public void testOneMoveNoRanks() throws ParserConfigurationException, SAXException, IOException, DrillXMLException {
-        //create the expected DrillInfo
+        //set the file url
+        File testFile = new File(path + "2-one-move-no-ranks.pnd");
+
+        //create the xml parser
+        XMLParser parser = new XMLParser();
+
+        //parse the file
+        DrillInfo drillInfo = parser.load(testFile);
+
+        //test
         DrillInfo expectedDrillInfo = new DrillInfo();
         expectedDrillInfo.getMoves().add(new Move());
+        Assert.assertEquals(expectedDrillInfo, drillInfo);
+    }
 
-        //test the generator output with the parser
-        testGeneratorAndParser(expectedDrillInfo, new File(outputPath + "6-one-move-no-ranks-output.pnd"));
+    //TODO: NOTE: this is actually an exceptional case because
+    //there were empty moves and then suddenly move three.  Fix this.
+    @Test
+    public void testOneMoveNoRanksNotInOrder() throws ParserConfigurationException, SAXException, IOException, DrillXMLException {
+        //set the file url
+        File testFile = new File(path + "3-one-move-no-ranks-not-in-order.pnd");
+
+        //create the xml parser
+        XMLParser parser = new XMLParser();
+
+        //parse the file
+        DrillInfo drillInfo = parser.load(testFile);
+
+        //test
+        DrillInfo expectedDrillInfo = new DrillInfo();
+        expectedDrillInfo.getMoves().add(new Move());
+        expectedDrillInfo.getMoves().add(new Move());
+        expectedDrillInfo.getMoves().add(new Move());
+        Move move = new Move();
+        move.setCounts(100);
+        expectedDrillInfo.getMoves().add(move);
+        Assert.assertEquals(expectedDrillInfo, drillInfo);
     }
 
     @Test
     public void testOneMoveNoRanksWithComments() throws ParserConfigurationException, SAXException, IOException, DrillXMLException {
-        //create the expected DrillInfo
+        //set the file url
+        File testFile = new File(path + "4-one-move-no-ranks-with-comments.pnd");
+
+        //create the xml parser
+        XMLParser parser = new XMLParser();
+
+        //parse the file
+        DrillInfo drillInfo = parser.load(testFile);
+
+        //test
         DrillInfo expectedDrillInfo = new DrillInfo();
         Move move = new Move();
         move.setComments("There are no ranks here!");
         expectedDrillInfo.getMoves().add(move);
+        Assert.assertEquals(expectedDrillInfo, drillInfo);
+    }
 
-        //test the generator output with the parser
-        testGeneratorAndParser(expectedDrillInfo, new File(outputPath + "7-one-move-no-ranks-with-comments-output.pnd"));
+    @Test
+    public void testOneTempoChange() throws ParserConfigurationException, SAXException, IOException, DrillXMLException {
+        //set the file url
+        File testFile = new File(path + "5-one-tempo-change.pnd");
+
+        //create the xml parser
+        XMLParser parser = new XMLParser();
+
+        //parse the file
+        DrillInfo drillInfo = parser.load(testFile);
+
+        //test
+        DrillInfo expectedDrillInfo = new DrillInfo();
+        expectedDrillInfo.getTempoHashMap().put(10, 180);
+        Assert.assertEquals(expectedDrillInfo, drillInfo);
+    }
+
+    @Test
+    public void testMultipleTempoChanges() throws ParserConfigurationException, SAXException, IOException, DrillXMLException {
+        //set the file url
+        File testFile = new File(path + "6-multiple-tempo-changes.pnd");
+
+        //create the xml parser
+        XMLParser parser = new XMLParser();
+
+        //parse the file
+        DrillInfo drillInfo = parser.load(testFile);
+
+        //test
+        DrillInfo expectedDrillInfo = new DrillInfo();
+        expectedDrillInfo.getTempoHashMap().put(10, 180);
+        expectedDrillInfo.getTempoHashMap().put(20, 190);
+        expectedDrillInfo.getTempoHashMap().put(30, 200);
+        Assert.assertEquals(expectedDrillInfo, drillInfo);
+    }
+
+    @Test
+    public void testOneCountChange() throws ParserConfigurationException, SAXException, IOException, DrillXMLException {
+        //set the file url
+        File testFile = new File(path + "7-one-count-change.pnd");
+
+        //create the xml parser
+        XMLParser parser = new XMLParser();
+
+        //parse the file
+        DrillInfo drillInfo = parser.load(testFile);
+
+        //test
+        DrillInfo expectedDrillInfo = new DrillInfo();
+        expectedDrillInfo.getCountsHashMap().put(10, 4);
+        Assert.assertEquals(expectedDrillInfo, drillInfo);
+    }
+
+    @Test
+    public void testMultipleCountChanges() throws ParserConfigurationException, SAXException, IOException, DrillXMLException {
+        //set the file url
+        File testFile = new File(path + "8-multiple-count-changes.pnd");
+
+        //create the xml parser
+        XMLParser parser = new XMLParser();
+
+        //parse the file
+        DrillInfo drillInfo = parser.load(testFile);
+
+        //test
+        DrillInfo expectedDrillInfo = new DrillInfo();
+        expectedDrillInfo.getCountsHashMap().put(10, 4);
+        expectedDrillInfo.getCountsHashMap().put(20, 5);
+        expectedDrillInfo.getCountsHashMap().put(30, 6);
+        Assert.assertEquals(expectedDrillInfo, drillInfo);
     }
 
     @Test
     public void testTwoMovesOneRankSongConstants() throws ParserConfigurationException, SAXException, IOException, DrillXMLException {
-        //create the expected DrillInfo
+        //set the file url
+        File testFile = new File(path + "9-two-moves-one-rank-song-constants.pnd");
+
+        //create the xml parser
+        XMLParser parser = new XMLParser();
+
+        //parse the file
+        DrillInfo drillInfo = parser.load(testFile);
+
+        //create the expected values
         DrillInfo expectedDrillInfo = new DrillInfo();
 
         //set the expected song constants
@@ -129,11 +206,13 @@ public class XMLGeneratorTest {
         endPositions.put("A", new RankPosition(new Point(45, 10), new Point(55, 10)));
         move.setEndPositions(endPositions);
 
+        move.setCounts(0);
+
         move.setComments("This is the zero move");
 
         expectedDrillInfo.getMoves().add(move);
 
-        //move 2
+        //move 1
         move = new Move();
         startPositions = new HashMap<String, RankPosition>();
         startPositions.put("A", new RankPosition(new Point(45, 10), new Point(55, 10)));
@@ -151,18 +230,32 @@ public class XMLGeneratorTest {
         endPositions.put("A", new RankPosition(new Point(45, 15), new Point(55, 15)));
         move.setEndPositions(endPositions);
 
+        move.setCounts(100);
+
         move.setComments("This is the first move");
 
         expectedDrillInfo.getMoves().add(move);
 
-        //test the generator output with the parser
-        testGeneratorAndParser(expectedDrillInfo, new File(outputPath + "8-two-moves-one-rank-song-constants-output.pnd"));
+        System.out.println("Expected:\n========================\n" + expectedDrillInfo.toString() + "\n");
+        System.out.println("Actual:\n========================\n" + drillInfo.toString() + "\n");
+
+        //test
+        Assert.assertEquals(expectedDrillInfo, drillInfo);
     }
 
     @Test
-    public void testTwoMovesMultipleRankSongConstants() throws ParserConfigurationException, SAXException, IOException, DrillXMLException {
-        //create the expected DrillInfo
-DrillInfo expectedDrillInfo = new DrillInfo();
+    public void testTwoMovesMultipleRanksSongConstants() throws ParserConfigurationException, SAXException, IOException, DrillXMLException {
+        //set the file url
+        File testFile = new File(path + "10-two-moves-two-ranks-song-constants.pnd");
+
+        //create the xml parser
+        XMLParser parser = new XMLParser();
+
+        //parse the file
+        DrillInfo drillInfo = parser.load(testFile);
+
+        //create the expected values
+        DrillInfo expectedDrillInfo = new DrillInfo();
 
         //set the expected song constants
         expectedDrillInfo.getTempoHashMap().put(1, 120);
@@ -188,11 +281,13 @@ DrillInfo expectedDrillInfo = new DrillInfo();
         endPositions.put("B", new RankPosition(new Point(45, 20), new Point(55, 20)));
         move.setEndPositions(endPositions);
 
+        move.setCounts(0);
+
         move.setComments("This is the zero move");
 
         expectedDrillInfo.getMoves().add(move);
 
-        //move 2
+        //move 1
         move = new Move();
         startPositions = new HashMap<String, RankPosition>();
         startPositions.put("A", new RankPosition(new Point(45, 10), new Point(55, 10)));
@@ -213,18 +308,31 @@ DrillInfo expectedDrillInfo = new DrillInfo();
         endPositions.put("B", new RankPosition(new Point(45, 25), new Point(55, 25)));
         move.setEndPositions(endPositions);
 
+        move.setCounts(100);
+
         move.setComments("This is the first move");
 
         expectedDrillInfo.getMoves().add(move);
 
-        //test the generator output with the parser
-        testGeneratorAndParser(expectedDrillInfo, new File(outputPath + "9-two-moves-two-ranks-song-constants-output.pnd"));
+        System.out.println("Expected:\n========================\n" + expectedDrillInfo.toString() + "\n");
+        System.out.println("Actual:\n========================\n" + drillInfo.toString() + "\n");
 
+        //test
+        Assert.assertEquals(expectedDrillInfo, drillInfo);
     }
 
     @Test
     public void testTwoMovesOneRankSongConstantsRenamedCommand() throws ParserConfigurationException, SAXException, IOException, DrillXMLException {
-        //create the expected DrillInfo
+        //set the file url
+        File testFile = new File(path + "11-two-moves-one-rank-song-constants-renamed-command.pnd");
+
+        //create the xml parser
+        XMLParser parser = new XMLParser();
+
+        //parse the file
+        DrillInfo drillInfo = parser.load(testFile);
+
+        //create the expected values
         DrillInfo expectedDrillInfo = new DrillInfo();
 
         //set the expected song constants
@@ -248,11 +356,13 @@ DrillInfo expectedDrillInfo = new DrillInfo();
         endPositions.put("A", new RankPosition(new Point(45, 10), new Point(55, 10)));
         move.setEndPositions(endPositions);
 
+        move.setCounts(0);
+
         move.setComments("This is the zero move");
 
         expectedDrillInfo.getMoves().add(move);
 
-        //move 2
+        //move 1
         move = new Move();
         startPositions = new HashMap<String, RankPosition>();
         startPositions.put("A", new RankPosition(new Point(45, 10), new Point(55, 10)));
@@ -270,21 +380,16 @@ DrillInfo expectedDrillInfo = new DrillInfo();
         endPositions.put("A", new RankPosition(new Point(45, 15), new Point(55, 15)));
         move.setEndPositions(endPositions);
 
+        move.setCounts(100);
+
         move.setComments("This is the first move");
 
         expectedDrillInfo.getMoves().add(move);
 
-        //test the generator output with the parser
-        testGeneratorAndParser(expectedDrillInfo, new File(outputPath + "10-two-moves-one-rank-song-constants-renamed-command-output.pnd"));
-    }
+        System.out.println("Expected:\n========================\n" + expectedDrillInfo.toString() + "\n");
+        System.out.println("Actual:\n========================\n" + drillInfo.toString() + "\n");
 
-    private void testGeneratorAndParser(DrillInfo expectedDrillInfo, File outputFile) throws ParserConfigurationException, SAXException, IOException, DrillXMLException {
-        //generate the xml
-        XMLGenerator generator = new XMLGenerator();
-        generator.save(expectedDrillInfo, outputFile);
-
-        //test with the parser
-        XMLParser parser = new XMLParser();
-        Assert.assertEquals(expectedDrillInfo, parser.load(outputFile));
+        //test
+        Assert.assertEquals(expectedDrillInfo, drillInfo);
     }
 }

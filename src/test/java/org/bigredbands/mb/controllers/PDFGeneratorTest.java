@@ -1,4 +1,4 @@
-package org.bigredbands.mb.tst;
+package org.bigredbands.mb.controllers;
 
 import java.awt.Dimension;
 import java.io.File;
