@@ -56,59 +56,59 @@ import org.bigredbands.mb.models.RankPosition;
  * their projects.
  */
 public class ProjectView {
-    
+
     private MainView mainView;
     private ControllerInterface controller;
-    
+
     //The window which all of the UI elements will be displayed on
     private JFrame window;
-    
+
     //The current message, move, and selected rank to be displayed to the user
     private JPanel messagePanel=new JPanel();
     private JLabel messageLabel = new JLabel();
     private JLabel moveLabel = new JLabel("");
     private JLabel selectedRankLabel = new JLabel();
-    
+
     //The text fields containing the entered rank name and count
     private JTextField rankNameTextField = new JTextField(5);
     private JTextField countText = new JTextField(3);
-    
+
     //The UI of the field where the ranks will be drawn on
     private FootballField fieldPanel;
-    
+
     private JTextField moveLengthText = new JTextField(3);
     private CommandListView commandListView;
     private MoveScrollBar moveScrollBar;
-    
+
     private JPanel rankPanel = new JPanel();
     final JCheckBox exactGridBox = new JCheckBox("Exact to Grid");
     JPanel countHolder = new JPanel();
-    
+
     private JButton confirmCommand = new JButton("OK");
     private JButton cancelCommand = new JButton("Cancel");
-    
+
     private int commandFlag = -1;
     private RankPosition DTPDest = null;
     private RankPosition FTADest = null;
     private ArrayList<Point>FTAPath = null;
     private Color highlightedColor = new Color(0,0,255,100);
-    
+
     private boolean ctrlPress = false;
-    
+
     private final Dimension toolbarSize = new Dimension(1000,38);
     private JPanel rankInfoToolbar = new JPanel();
-    
+
     private ArrayList<JButton> buttonList = new ArrayList<JButton>();
     private final JButton playbackButton;
-    
+
     //TODO: this is really, really sketchy
-    //doing this so i can pass in an instance of the projectView to the draw ranks function 
+    //doing this so i can pass in an instance of the projectView to the draw ranks function
     // when it is called from an action listener
     //should probably just be a singleton
     private final ProjectView thisProjectView;
-    
+
     private boolean saved = true;
-    
+
     /**
      * This is the constructor that sets up all of the UI elements and then
      * displays the window to the user
@@ -119,11 +119,11 @@ public class ProjectView {
         this.mainView = main;
         this.controller = controller;
         this.thisProjectView = this;
-        
+
         //set the top labels to default values
         displayMoveNumber(-1, -1);
         clearSelectedRanks();
-        
+
         // create the command buttons
         final JButton MT = createButton("MT");
         JButton Hlt = createButton("Halt");
@@ -144,17 +144,17 @@ public class ProjectView {
         //add listeners to confirm and cancel button
         confirmCommand.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                mainView.assignCommand(mainView.getSelectedRanks(), 
+                mainView.assignCommand(mainView.getSelectedRanks(),
                         countText.getText(), commandFlag, DTPDest);
-            }        
+            }
         });
-        
+
         cancelCommand.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 cancelPreviousCommand(commandFlag);
             }
         });
-        
+
         // add listeners to commands
         // only partially complete because we only deal with certain commands for now
         MT.addActionListener(new ActionListener() {
@@ -164,7 +164,7 @@ public class ProjectView {
                     if (commandFlag == -1) {
                         displayCommandInfo();
                     }
-                    
+
                     rankInfoToolbar.setVisible(false);
                     commandFlag = CommandPair.MT;
                 }
@@ -177,7 +177,7 @@ public class ProjectView {
                     if (commandFlag == -1) {
                         displayCommandInfo();
                     }
-                    
+
                     rankInfoToolbar.setVisible(false);
                     commandFlag = CommandPair.HALT;
                 }
@@ -190,7 +190,7 @@ public class ProjectView {
                     if (commandFlag == -1) {
                         displayCommandInfo();
                     }
-                    
+
                     rankInfoToolbar.setVisible(false);
                     commandFlag = CommandPair.FM;
                 }
@@ -203,7 +203,7 @@ public class ProjectView {
                     if (commandFlag == -1) {
                         displayCommandInfo();
                     }
-                    
+
                     rankInfoToolbar.setVisible(false);
                     commandFlag = CommandPair.BM;
                 }
@@ -216,7 +216,7 @@ public class ProjectView {
                     if (commandFlag == -1) {
                         displayCommandInfo();
                     }
-                    
+
                     rankInfoToolbar.setVisible(false);
                     commandFlag = CommandPair.RS;
                 }
@@ -229,7 +229,7 @@ public class ProjectView {
                     if (commandFlag == -1) {
                         displayCommandInfo();
                     }
-                    
+
                     rankInfoToolbar.setVisible(false);
                     commandFlag = CommandPair.LS;
                 }
@@ -275,20 +275,20 @@ public class ProjectView {
 
         // Sets up the message bar at the top of the football field
         messagePanel.setLayout(new BorderLayout());
-        
+
         messageLabel.setHorizontalAlignment(JLabel.LEFT);
         moveLabel.setHorizontalAlignment(JLabel.CENTER);
         selectedRankLabel.setHorizontalAlignment(JLabel.RIGHT);
         Dimension preferredDimension = new Dimension(250, 30);
         Dimension maxDim = new Dimension(new Dimension(600, 30));
         Dimension messDim  =new Dimension(275, 30);
-        
+
         messageLabel.setMaximumSize(maxDim);
         messageLabel.setPreferredSize(messDim);
         moveLabel.setPreferredSize(preferredDimension);
         selectedRankLabel.setPreferredSize(preferredDimension);
-        
-        //make the center moveLabel be at the center regardless of size of messagelabel 
+
+        //make the center moveLabel be at the center regardless of size of messagelabel
         messagePanel.add(messageLabel, BorderLayout.WEST);
         messagePanel.add(moveLabel, BorderLayout.CENTER);
         messagePanel.add(selectedRankLabel, BorderLayout.EAST);
@@ -297,7 +297,7 @@ public class ProjectView {
         JMenuBar menuBar = new JMenuBar();
         JMenu fileMenu = new JMenu("File");
         JMenu editMenu = new JMenu("Edit");
-        
+
             // Creates the buttons for the file menu
         JMenuItem openMenuItem = new JMenuItem("Open");
         JMenuItem newProjectMenuItem = new JMenuItem("New");
@@ -356,7 +356,7 @@ public class ProjectView {
         // The layout of the window
         Dimension defaultFieldSize = new Dimension(800, 400);
         Dimension defaultFrameSize = new Dimension(defaultFieldSize.width, defaultFieldSize.height + 40);
-        
+
         //Set up the window
         window = new JFrame(mainView.getProjectTitle());
         window.setMinimumSize(defaultFrameSize);
@@ -367,7 +367,7 @@ public class ProjectView {
         final JPanel specialCommandToolbar = new JPanel();
         moveInfo.setLayout(new BorderLayout());
 
-        
+
         flatten.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 if (commandFlag != CommandPair.FLAT_TO_ENDS
@@ -376,9 +376,9 @@ public class ProjectView {
                     if (commandFlag == -1) {
                         displayCommandInfo();
                     }
-                    
+
                     commandFlag = CommandPair.FLAT_TO_ENDS;
-                
+
                     rankInfoToolbar.setVisible(false);
                     rankInfoToolbar.removeAll();
                     specialCommandToolbar.removeAll();
@@ -397,15 +397,15 @@ public class ProjectView {
                         }
                     });
                     rankInfoToolbar.setLayout(new GridLayout(1, 0));
-                    
+
                     flattenGroup.add(toEndsButton);
                     flattenGroup.add(toMidButton);
-                    
+
                     rankInfoToolbar.add(toEndsButton);
                     rankInfoToolbar.add(toMidButton);
                     specialCommandToolbar.add(rankInfoToolbar, BorderLayout.CENTER);
                     rankInfoToolbar.setVisible(true);
-                    window.setVisible(true);    
+                    window.setVisible(true);
                 }
             }
         });
@@ -419,39 +419,39 @@ public class ProjectView {
                     if (commandFlag == -1) {
                         displayCommandInfo();
                     }
-                    
+
                     commandFlag=CommandPair.PWCW;
-                    
+
                     rankInfoToolbar.setVisible(false);
                     rankInfoToolbar.removeAll();
                     specialCommandToolbar.removeAll();
                     final ButtonGroup PWGroup =new ButtonGroup();
-                    
+
                     final JRadioButton clockwiseButton = new JRadioButton("CW");
                     clockwiseButton.setSelected(true);
                     clockwiseButton.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
                             commandFlag=CommandPair.PWCW;
-                        }                        
+                        }
                     });
-                    
+
                     final JRadioButton counterClockwiseButton = new JRadioButton("CCW");
                     counterClockwiseButton.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
                             commandFlag=CommandPair.PWCCW;
                         }
                     });
-                    
+
                     rankInfoToolbar.setLayout(new GridLayout(1, 0));
-                    
+
                     PWGroup.add(clockwiseButton);
                     PWGroup.add(counterClockwiseButton);
-                    
+
                     rankInfoToolbar.add(clockwiseButton);
                     rankInfoToolbar.add(counterClockwiseButton);
                     specialCommandToolbar.add(rankInfoToolbar, BorderLayout.CENTER);
                     rankInfoToolbar.setVisible(true);
-                }        
+                }
             }
         });
 
@@ -466,22 +466,22 @@ public class ProjectView {
                     if (commandFlag == -1) {
                         displayCommandInfo();
                     }
-                    
+
                     commandFlag = CommandPair.GTCW_HEAD;
-                    
+
                     rankInfoToolbar.setVisible(false);
                     rankInfoToolbar.removeAll();
                     specialCommandToolbar.removeAll();
                     final ButtonGroup GTPartGroup= new ButtonGroup();
                     final ButtonGroup GTClockGroup= new ButtonGroup();
-                    
+
                     final JRadioButton headButton = new JRadioButton("Head");
                     headButton.setSelected(true);
                     final JRadioButton footButton = new JRadioButton("Foot");
                     final JRadioButton clockwiseButton = new JRadioButton("CW");
                     clockwiseButton.setSelected(true);
                     final JRadioButton counterClockwiseButton = new JRadioButton("CCW");
-                    
+
                     headButton.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
                             if(clockwiseButton.isSelected()) {
@@ -492,7 +492,7 @@ public class ProjectView {
                             }
                         }
                     });
-                    
+
                     footButton.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
                             if(clockwiseButton.isSelected()) {
@@ -503,7 +503,7 @@ public class ProjectView {
                             }
                         }
                     });
-                    
+
                     clockwiseButton.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
                             if (headButton.isSelected()) {
@@ -514,7 +514,7 @@ public class ProjectView {
                             }
                         }
                     });
-                    
+
                     counterClockwiseButton.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
                             if (headButton.isSelected()) {
@@ -525,14 +525,14 @@ public class ProjectView {
                             }
                         }
                     });
-                    
+
                     rankInfoToolbar.setLayout(new GridLayout(1, 0));
-                    
+
                     GTPartGroup.add(headButton);
                     GTPartGroup.add(footButton);
                     GTClockGroup.add(clockwiseButton);
                     GTClockGroup.add(counterClockwiseButton);
-                    
+
                     rankInfoToolbar.add(headButton);
                     rankInfoToolbar.add(footButton);
                     rankInfoToolbar.add(clockwiseButton);
@@ -551,15 +551,15 @@ public class ProjectView {
                     if (commandFlag == -1) {
                         displayCommandInfo();
                     }
-                    
+
                     commandFlag = CommandPair.DTP;
-                    
+
                     rankInfoToolbar.setVisible(false);
                     rankInfoToolbar.removeAll();
                     specialCommandToolbar.removeAll();
-                    
+
                     rankInfoToolbar.setLayout(new GridLayout(1, 0));
-                    
+
                     rankInfoToolbar.add(new JLabel("Set destination"));
                     specialCommandToolbar.add(rankInfoToolbar, BorderLayout.CENTER);
                     rankInfoToolbar.setVisible(true);
@@ -577,22 +577,22 @@ public class ProjectView {
                     if (commandFlag == -1) {
                         displayCommandInfo();
                     }
-                    
+
                     commandFlag = CommandPair.FTA;
-                    
+
                     rankInfoToolbar.setVisible(false);
                     rankInfoToolbar.removeAll();
                     specialCommandToolbar.removeAll();
-                    
+
                     rankInfoToolbar.setLayout(new GridLayout(1, 0));
-                    
+
                     rankInfoToolbar.add(new JLabel("Set destination"));
                     specialCommandToolbar.add(rankInfoToolbar, BorderLayout.CENTER);
                     rankInfoToolbar.setVisible(true);
                     fieldPanel.drawFTARank(thisProjectView);
                 }*/
                 commandFlag = -1;
-                
+
                 rankInfoToolbar.setVisible(false);
                 rankInfoToolbar.removeAll();
                 specialCommandToolbar.removeAll();
@@ -606,7 +606,7 @@ public class ProjectView {
                 window.setVisible(true);
             }
         });
-        
+
         // displays radio buttons if Exp selected
         exp.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -617,9 +617,9 @@ public class ProjectView {
                     if (commandFlag == -1) {
                         displayCommandInfo();
                     }
-                    
+
                     commandFlag = CommandPair.EXPAND_HEAD;
-                    
+
                     rankInfoToolbar.setVisible(false);
                     rankInfoToolbar.removeAll();
                     specialCommandToolbar.removeAll();
@@ -628,7 +628,7 @@ public class ProjectView {
                     expHead.setSelected(true);
                     final JRadioButton expTail = new JRadioButton("Tail");
                     final JRadioButton expBoth = new JRadioButton("Both");
-                    
+
                     expHead.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
                             commandFlag = CommandPair.EXPAND_HEAD;
@@ -644,7 +644,7 @@ public class ProjectView {
                             commandFlag = CommandPair.EXPAND_BOTH;
                         }
                     });
-                    
+
                     expGroup.add(expHead);
                     expGroup.add(expTail);
                     expGroup.add(expBoth);
@@ -652,7 +652,7 @@ public class ProjectView {
                     rankInfoToolbar.add(expHead);
                     rankInfoToolbar.add(expTail);
                     rankInfoToolbar.add(expBoth);
-                    
+
                     specialCommandToolbar.add(rankInfoToolbar, BorderLayout.CENTER);
                     rankInfoToolbar.setVisible(true);
                 }
@@ -669,9 +669,9 @@ public class ProjectView {
                     if (commandFlag == -1) {
                         displayCommandInfo();
                     }
-                    
+
                     commandFlag = CommandPair.CONDENSE_HEAD;
-                    
+
                     rankInfoToolbar.setVisible(false);
                     rankInfoToolbar.removeAll();
                     specialCommandToolbar.removeAll();
@@ -680,7 +680,7 @@ public class ProjectView {
                     condHead.setSelected(true);
                     final JRadioButton condTail = new JRadioButton("Tail");
                     final JRadioButton condBoth = new JRadioButton("Both");
-                    
+
                     condHead.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
                             commandFlag = CommandPair.CONDENSE_HEAD;
@@ -696,7 +696,7 @@ public class ProjectView {
                             commandFlag = CommandPair.CONDENSE_BOTH;
                         }
                     });
-                    
+
                     condGroup.add(condHead);
                     condGroup.add(condTail);
                     condGroup.add(condBoth);
@@ -704,7 +704,7 @@ public class ProjectView {
                     rankInfoToolbar.add(condHead);
                     rankInfoToolbar.add(condTail);
                     rankInfoToolbar.add(condBoth);
-                    
+
                     specialCommandToolbar.add(rankInfoToolbar, BorderLayout.CENTER);
                     rankInfoToolbar.setVisible(true);
                 }
@@ -726,14 +726,14 @@ public class ProjectView {
                     if (commandFlag == -1) {
                         displayCommandInfo();
                     }
-                    
+
                     commandFlag = CommandPair.CORNER_RB;
-                
+
                     rankInfoToolbar.setVisible(false);
                     rankInfoToolbar.removeAll();
                     specialCommandToolbar.removeAll();
                     ButtonGroup JButtonGroup = new ButtonGroup();
-                    
+
                     JRadioButton RBButton = new JRadioButton("RB");
                     RBButton.setSelected(true);
                     JRadioButton FRButton = new JRadioButton("FR");
@@ -743,7 +743,7 @@ public class ProjectView {
                     JRadioButton FLButton = new JRadioButton("FL");
                     JRadioButton BLButton = new JRadioButton("BL");
                     JRadioButton LFButton = new JRadioButton("LF");
-                    
+
                     RBButton.addActionListener(new ActionListener() {
                         public void actionPerformed(ActionEvent e) {
                             commandFlag = CommandPair.CORNER_RB;
@@ -784,9 +784,9 @@ public class ProjectView {
                             commandFlag = CommandPair.CORNER_LF;
                         }
                     });
-                    
+
                     rankInfoToolbar.setLayout(new GridLayout(1, 0));
-                    
+
                     JButtonGroup.add(RBButton);
                     JButtonGroup.add(FRButton);
                     JButtonGroup.add(BRButton);
@@ -795,7 +795,7 @@ public class ProjectView {
                     JButtonGroup.add(FLButton);
                     JButtonGroup.add(BLButton);
                     JButtonGroup.add(LFButton);
-                    
+
                     rankInfoToolbar.add(RBButton);
                     rankInfoToolbar.add(FRButton);
                     rankInfoToolbar.add(BRButton);
@@ -804,7 +804,7 @@ public class ProjectView {
                     rankInfoToolbar.add(FLButton);
                     rankInfoToolbar.add(BLButton);
                     rankInfoToolbar.add(LFButton);
-                    
+
                     specialCommandToolbar.add(rankInfoToolbar, BorderLayout.CENTER);
                     rankInfoToolbar.setVisible(true);
                     window.setVisible(true);
@@ -821,9 +821,9 @@ public class ProjectView {
                     if (commandFlag == -1) {
                         displayCommandInfo();
                     }
-                    
+
                     commandFlag = CommandPair.CURVE_LEFT;
-                
+
                     rankInfoToolbar.setVisible(false);
                     rankInfoToolbar.removeAll();
                     specialCommandToolbar.removeAll();
@@ -841,10 +841,10 @@ public class ProjectView {
                             commandFlag = CommandPair.CURVE_RIGHT;
                         }
                     });
-                    
+
                     /*JButton confirmButton= new JButton("OK");
                     confirmButton.addActionListener(new ActionListener(){
-    
+
                         @Override
                         public void actionPerformed(ActionEvent arg0) {
                             String counter=countText.getText();
@@ -861,30 +861,30 @@ public class ProjectView {
                                     theSelectedRank.getMidpoint().setPoint(x, y);
                                     fieldPanel.repaint();
                                 }
-                                
+
                             }
                             else{
                                 System.out.println("not valid");
                             }
                         }
-                        
+
                     }); */
                     rankInfoToolbar.setLayout(new GridLayout(1, 0));
-                    
+
                     curveGroup.add(leftButton);
                     curveGroup.add(rightButton);
-                    
+
                     rankInfoToolbar.add(leftButton);
                     rankInfoToolbar.add(rightButton);
                     //rankInfoToolbar.add(confirmButton);
                     specialCommandToolbar.add(rankInfoToolbar, BorderLayout.CENTER);
                     rankInfoToolbar.setVisible(true);
-                    window.setVisible(true);    
+                    window.setVisible(true);
                 }
             }
-            
+
         });
-        
+
         // Changes what happens when the close button is pressed
         window.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         window.addWindowListener(new WindowAdapter() {
@@ -893,7 +893,7 @@ public class ProjectView {
                 onClose();
             }
         });
-        
+
         playbackButton = new JButton();
         playbackButton.addKeyListener(new HotKey());
         setPlaybackButtonState(mainView.isPlaybackRunning());
@@ -903,7 +903,7 @@ public class ProjectView {
                 mainView.togglePlayback();
             }
         });
-        
+
         // sets up the bar above the command buttons
         //Add rank button
         JButton addRankButton = createButton("Add Rank");
@@ -914,44 +914,44 @@ public class ProjectView {
                 fieldPanel.drawNewRank(thisProjectView);
             }
         });
-        
+
         //Rank Name field where user can enter rank name for new rank
         JLabel rankNameLabel = new JLabel("Rank Name:");
         rankPanel.setLayout(new BorderLayout());
         rankPanel.add(rankNameLabel, BorderLayout.CENTER);
         rankPanel.add(rankNameTextField, BorderLayout.EAST);
-        
+
         //Count field where user can enter count for command
         JLabel countLabel = new JLabel("Count:");
         countHolder.setLayout(new BorderLayout());
         countHolder.add(countLabel, BorderLayout.CENTER);
         countHolder.add(countText, BorderLayout.EAST);
-        
+
         //Delete rank button to remove the currently selected rank
         JButton deleteRankButton = createButton("Delete Rank");
         deleteRankButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 Object[] options = {"Yes", "No"};
-                int n = JOptionPane.showOptionDialog(getWindow(), 
-                        "Are you sure you want to delete this rank(s)?", 
-                        "Deleting Rank", 
-                        JOptionPane.YES_NO_OPTION, 
-                        JOptionPane.QUESTION_MESSAGE, 
-                        null, 
-                        options, 
+                int n = JOptionPane.showOptionDialog(getWindow(),
+                        "Are you sure you want to delete this rank(s)?",
+                        "Deleting Rank",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        options,
                         options[0]);
                 if (n==0) mainView.deleteRank(mainView.getSelectedRanks());
             }
         });
-        
-        //Exact to Grid button to have the rank snap to the grid 
+
+        //Exact to Grid button to have the rank snap to the grid
         exactGridBox.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 //set if
                 mainView.setExactGrid(exactGridBox.isSelected());
             }
         });
-        
+
         //Set up the toolbar layout
         JPanel toolbarPanel = new JPanel(new BorderLayout());
         JPanel toolbarButtonsPanel = new JPanel();
@@ -959,27 +959,27 @@ public class ProjectView {
         toolbarButtonsPanel.add(addRankButton);
         toolbarButtonsPanel.add(deleteRankButton);
         toolbarPanel.add(toolbarButtonsPanel, BorderLayout.WEST);
-        
+
         JPanel rankAndCountToolbar = new JPanel();
         rankAndCountToolbar.add(rankPanel);
         rankAndCountToolbar.add(exactGridBox);
         rankAndCountToolbar.add(countHolder);
-        
+
         //Set these to be invisible until they are needed
         rankPanel.setVisible(false);
         exactGridBox.setVisible(true); // always have this available!
         exactGridBox.setSelected(true);
         mainView.setExactGrid(exactGridBox.isSelected());
         countHolder.setVisible(false);
-        
+
         JPanel commandVerificationPanel = new JPanel();
         commandVerificationPanel.add(confirmCommand);
         commandVerificationPanel.add(cancelCommand);
-        
+
         //Set these to be invisible until they are needed
         confirmCommand.setVisible(false);
         cancelCommand.setVisible(false);
-        
+
         //Set up the layout of the move info bar
         toolbarPanel.add(rankAndCountToolbar, BorderLayout.CENTER);
         moveInfo.add(specialCommandToolbar, BorderLayout.CENTER);
@@ -1040,7 +1040,7 @@ public class ProjectView {
             }
         });
         commandListButtons.add(deleteCommandButton);
-        
+
         // Button to merge the selected commands if they are of the same type
         JButton mergeCommandButton = createButton("Merge");
         mergeCommandButton.addActionListener(new ActionListener() {
@@ -1049,7 +1049,7 @@ public class ProjectView {
             }
         });
         commandListButtons.add(mergeCommandButton);
-        
+
         // Button to delete the selected command
         JButton splitCommandButton = createButton("Split");
         splitCommandButton.addActionListener(new ActionListener() {
@@ -1099,7 +1099,7 @@ public class ProjectView {
         });
 
         testPanel.add(addMove);
-        
+
         // create the add move button and add its listener
         JButton deleteMove = createButton("Delete Move");
         deleteMove.addActionListener(new ActionListener() {
@@ -1107,13 +1107,13 @@ public class ProjectView {
             public void actionPerformed(ActionEvent arg0) {
                 if(mainView.getCurrentMove()!=0) {
                     Object[] options = {"Yes", "No"};
-                    int n = JOptionPane.showOptionDialog(getWindow(), 
-                            "Are you sure you want to delete this move?", 
-                            "Deleting Move", 
-                            JOptionPane.YES_NO_OPTION, 
-                            JOptionPane.QUESTION_MESSAGE, 
-                            null, 
-                            options, 
+                    int n = JOptionPane.showOptionDialog(getWindow(),
+                            "Are you sure you want to delete this move?",
+                            "Deleting Move",
+                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.QUESTION_MESSAGE,
+                            null,
+                            options,
                             options[0]);
                     if (n==0) mainView.deleteMove(mainView.getCurrentMove());
                 }
@@ -1134,7 +1134,7 @@ public class ProjectView {
         window.setSize(1200, 600);
         window.setJMenuBar(menuBar);
         window.setVisible(true);
-        
+
         // Let the HotKeys work
         window.setFocusable(true);
         window.requestFocusInWindow();
@@ -1143,7 +1143,7 @@ public class ProjectView {
         // wizard
         Wizard myWizard = new Wizard(controller);
     }
-    
+
     /**
      * Adds a button to the button list
      * @param buttonText - the title of the button
@@ -1155,7 +1155,7 @@ public class ProjectView {
         button.addKeyListener(new HotKey());
         return button;
     }
-    
+
     /**
      * Disables the listeners of the buttons in project view for playback
      */
@@ -1166,7 +1166,7 @@ public class ProjectView {
         }
         exactGridBox.setEnabled(false);
     }
-    
+
     /**
      * Enables the listeners of the buttons in project view after playback
      */
@@ -1176,12 +1176,12 @@ public class ProjectView {
         }
         exactGridBox.setEnabled(true);
     }
-    
+
     /**
-     * Removes in-progress data for adding ranks/DTP/FTA, and hides the 
+     * Removes in-progress data for adding ranks/DTP/FTA, and hides the
      * toolbar information for the previous command (if applicable)
      */
-    
+
     public void cancelPreviousCommand(int cmd) {
         if(fieldPanel.getAddRank()) {
             fieldPanel.endAddRank();
@@ -1198,27 +1198,27 @@ public class ProjectView {
         }
         hideCommandInfo();
     }
-    
+
     /**
      * Change the playback button based on if playback is currently running.
-     * 
+     *
      * @param isPlaybackRunning - true if playback is running, false if not
      */
     public void setPlaybackButtonState(boolean isPlaybackRunning) {
         playbackButton.setText(isPlaybackRunning ? "Stop Playback" : "Start Playback");
     }
-    
+
     /**
      * Repaint the football field screen
      */
     public void repaintFieldPanel() {
         fieldPanel.repaint();
     }
-    
+
     public boolean getCtrlPress () {
         return ctrlPress;
     }
-    
+
     /**
      * Creates a scroll bar which displays the list of moves and the field states at each move
      * @param numberOfMoves - the number of moves to display in the scroll bar
@@ -1227,7 +1227,7 @@ public class ProjectView {
         moveScrollBar.createNewScrollBar(numberOfMoves);
         window.setVisible(true);
     }
-    
+
     /**
      * Adds a move to the scroll bar
      * @param moveNumber - the number of the new move to be added
@@ -1236,7 +1236,7 @@ public class ProjectView {
         moveScrollBar.addMoveToScrollBar(moveNumber);
         window.setVisible(true);
     }
-    
+
     /**
      * Removes a move to the scroll bar
      * @param moveNumber - the number of the new move to be added
@@ -1245,14 +1245,14 @@ public class ProjectView {
         moveScrollBar.removeMoveFromScrollBar(moveNumber);
         window.setVisible(true);
     }
-    
+
     /**
      * Repaints the scroll bar
      */
     public void repaintScrollBar() {
         moveScrollBar.repaintScrollBar();
     }
-    
+
     /**
      * Update the displayed move and count number to the specified args
      * @param moveNumber - the new current move number
@@ -1261,7 +1261,7 @@ public class ProjectView {
     public void displayMoveNumber(int moveNumber, int countNumber) {
         moveLabel.setText("Move Number:  " + moveNumber + ", Count Number:  " + countNumber);
     }
-    
+
     /**
      * Update the displayed selected rank to the specified rank
      * @param rankName - the name of the new selected rank
@@ -1279,11 +1279,11 @@ public class ProjectView {
             selectedRankLabel.setText(lbl);
         }
     }
-    
+
     public void clearSelectedRanks() {
         selectedRankLabel.setText("");
     }
-    
+
     /**
      * Update the displayed list of commands
      * @param commands - the new array list of commands for this rank
@@ -1293,7 +1293,7 @@ public class ProjectView {
         saved = false;
         updateProjectTitle();
     }
-    
+
     /**
      * Display a message to the user
      * @param message - the message to be displayed
@@ -1301,7 +1301,7 @@ public class ProjectView {
     public void setMessageLabelText(String message) {
         messageLabel.setText(message);
     }
-    
+
     /**
      * Gets what the user entered into the rank name text field
      * @return - the string in the rank name text field
@@ -1309,7 +1309,7 @@ public class ProjectView {
     public String getRankNameText() {
         return rankNameTextField.getText();
     }
-    
+
     /**
      * Sets the rank name text field to the specified string
      * @param rankName - the new rank name text field contents
@@ -1317,19 +1317,19 @@ public class ProjectView {
     public void setRankNameText(String rankName) {
         rankNameTextField.setText(rankName);
     }
-    
+
     public void setDTPDest(RankPosition dest) {
         DTPDest = dest;
     }
-    
+
     public RankPosition getDTPDest() {
         return DTPDest;
     }
-    
+
     public RankPosition getFTADest() {
         return FTADest;
     }
-    
+
     /**
      * @return the fieldPanel
      */
@@ -1343,14 +1343,14 @@ public class ProjectView {
     public void setFieldPanel(FootballField fieldPanel) {
         this.fieldPanel = fieldPanel;
     }
-    
+
     /**
      * returns the window of this ProjectView
      */
     public JFrame getWindow() {
         return window;
     }
-    
+
     /**
      * Displays the needed items in toolbar for adding a rank
      */
@@ -1358,7 +1358,7 @@ public class ProjectView {
         rankPanel.setVisible(true);
         rankNameTextField.requestFocus();
     }
-    
+
     /**
      * Hides the needed items in the toolbar for adding a rank
      */
@@ -1366,7 +1366,7 @@ public class ProjectView {
         this.setMessageLabelText("");
         rankPanel.setVisible(false);
     }
-    
+
     /**
      * Displays the needed items in the toolbar for adding a command
      */
@@ -1376,7 +1376,7 @@ public class ProjectView {
         cancelCommand.setVisible(true);
         countText.requestFocus();
     }
-    
+
     /**
      * Hides the needed items in the toolbar for adding a command
      */
@@ -1387,7 +1387,7 @@ public class ProjectView {
         commandFlag = -1;
         rankInfoToolbar.setVisible(false);
     }
-    
+
     /**
      * Update the title of the window to the current fileName in MainView
      */
@@ -1397,7 +1397,7 @@ public class ProjectView {
         else title = "*"+mainView.getProjectTitle();
         window.setTitle(title);
     }
-    
+
     /**
      * Make sure we don't lose any changes before closing the window
      */
@@ -1407,13 +1407,13 @@ public class ProjectView {
         }
         else {
             Object[] options = {"Yes", "No", "Cancel"};
-            int n = JOptionPane.showOptionDialog(getWindow(), 
-                    "Do you want to save before closing?", 
-                    "Closing program", 
-                    JOptionPane.YES_NO_CANCEL_OPTION, 
-                    JOptionPane.QUESTION_MESSAGE, 
-                    null, 
-                    options, 
+            int n = JOptionPane.showOptionDialog(getWindow(),
+                    "Do you want to save before closing?",
+                    "Closing program",
+                    JOptionPane.YES_NO_CANCEL_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    options,
                     options[0]);
             if (n==0) {
                 onSave(false);
@@ -1422,9 +1422,9 @@ public class ProjectView {
             if (n==1) mainView.closeProgram();
         }
     }
-    
+
     /**
-     * Save the project. 
+     * Save the project.
      * @param as If as==true, save as. If as==false, normal save.
      */
     private void onSave(boolean as) {
@@ -1434,7 +1434,7 @@ public class ProjectView {
         saved = true;
         updateProjectTitle();
     }
-    
+
     /**
      * This method communicates with the controller which will open a saved project
      */
@@ -1444,7 +1444,7 @@ public class ProjectView {
             mainView.loadProject();
         }
     }
-    
+
     /**
      * This method communicates with the controller which will open a new project
      */
@@ -1454,7 +1454,7 @@ public class ProjectView {
             mainView.createNewProject();
         }
     }
-    
+
     /**
      * This method communicates with the controller which will open a new project
      */
@@ -1464,7 +1464,7 @@ public class ProjectView {
             onClose();
         }
     }
-    
+
     /**
      * This method communicates with the controller which will open a new project
      */
@@ -1474,7 +1474,7 @@ public class ProjectView {
             onSave(false);
         }
     }
-    
+
     /**
      * This method communicates with the controller which will open a new project
      */
@@ -1484,7 +1484,7 @@ public class ProjectView {
             onSave(true);
         }
     }
-    
+
     /**
      * This method communicates with the controller which will open a new project
      */
@@ -1494,7 +1494,7 @@ public class ProjectView {
             mainView.exportPDF();
         }
     }
-    
+
     /**
      * This method communicates with the controller which will open a new project
      */
@@ -1504,7 +1504,7 @@ public class ProjectView {
             onClose();
         }
     }
-    
+
     /**
      * This method communicates with the football field to add a rank to the field
      */
@@ -1514,7 +1514,7 @@ public class ProjectView {
             fieldPanel.drawNewRank(thisProjectView);
         }
     }
-    
+
     /**
      * Opens the wizard with the current song constants
      */
@@ -1524,7 +1524,7 @@ public class ProjectView {
             Wizard myWiz = new Wizard(controller, controller.getTempoHash(), controller.getCountHash(), controller.getSongName());
         }
     }
-    
+
     /**
      * Opens a separate window for editing the comments for each move
      */
@@ -1536,21 +1536,21 @@ public class ProjectView {
             moveCommentDialog.setAlwaysOnTop(true);
             moveCommentDialog.setLocationRelativeTo(window);
             moveCommentDialog.setModalityType(ModalityType.APPLICATION_MODAL);
-            
+
             JPanel moveCommentPanel = new JPanel();
             moveCommentPanel.setLayout(new BoxLayout(moveCommentPanel, BoxLayout.Y_AXIS));
-            
+
             JLabel moveCommentLabel = new JLabel();
             moveCommentLabel.setText("Enter comments for the selected move below.");
             moveCommentLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-            
+
             final JTextField commentTextField = new JTextField();
             commentTextField.setAlignmentX(Component.CENTER_ALIGNMENT);
             commentTextField.setText(mainView.getMoveComment());
-            
+
             JPanel buttonPanel = new JPanel();
             buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
-            
+
             JButton confirmationButton = new JButton("OK");
             confirmationButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -1558,26 +1558,26 @@ public class ProjectView {
                     moveCommentDialog.dispose();
                 }
             });
-            
+
             JButton cancelButton = new JButton("Cancel");
             cancelButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     moveCommentDialog.dispose();
                 }
             });
-            
+
             buttonPanel.add(confirmationButton);
             buttonPanel.add(cancelButton);
-            
+
             moveCommentPanel.add(moveCommentLabel);
             moveCommentPanel.add(commentTextField);
             moveCommentPanel.add(buttonPanel);
-            
+
             moveCommentDialog.add(moveCommentPanel);
             moveCommentDialog.setVisible(true);
         }
     }
-    
+
     class HotKey implements KeyListener {
 
         @Override
@@ -1606,9 +1606,9 @@ public class ProjectView {
             if(e.getKeyCode()==KeyEvent.VK_CONTROL) {
                 ctrlPress = false;
             }
-            
+
         }
-        
+
     }
 
     /**
@@ -1617,7 +1617,7 @@ public class ProjectView {
      * @return - true if all numbers, false if not
      */
     public boolean isNumeric(String str){
-        for (int i = str.length();--i>=0;){   
+        for (int i = str.length();--i>=0;){
             if (!Character.isDigit(str.charAt(i))){
                 return false;
             }

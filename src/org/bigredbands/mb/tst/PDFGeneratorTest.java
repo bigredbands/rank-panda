@@ -46,19 +46,19 @@ public class PDFGeneratorTest {
                 50, 100)));
         startPositions.put("B", new RankPosition(new Point(200, 80), new Point(
                 100, 100)));
-        
+
 
         HashMap<String, ArrayList<CommandPair>> rankCommands = new HashMap<String, ArrayList<CommandPair>>();
         rankCommands.put("A", new ArrayList<CommandPair>());
         rankCommands.put("B", new ArrayList<CommandPair>());
-        
+
 
         HashMap<String, RankPosition> endPositions = new HashMap<String, RankPosition>();
         endPositions.put("A", new RankPosition(new Point(20, 30), new Point(70,
                 10)));
         endPositions.put("B", new RankPosition(new Point(70, 50), new Point(50,
                 35)));
-        
+
         move.setStartPositions(startPositions);
         move.setCommands(rankCommands);
         move.setEndPositions(endPositions);
@@ -84,16 +84,16 @@ public class PDFGeneratorTest {
         commands.add(new CommandPair(CommandPair.LS, 4));
         commands.add(new CommandPair(CommandPair.FM, 4));
         rankCommands.put("A", commands);
-        
+
         ArrayList<CommandPair> commands2 = new ArrayList<CommandPair>();
         commands2.add(new CommandPair(CommandPair.MT, 12));
         commands2.add(new CommandPair(CommandPair.FM, 8));
         commands2.add(new CommandPair(CommandPair.HALT, 5));
         commands2.add(new CommandPair(CommandPair.FM, 8));
         commands2.add(new CommandPair(CommandPair.HALT, 5));
-        
+
         rankCommands.put("B", commands2);
-        
+
         ArrayList<CommandPair> commands3 = new ArrayList<CommandPair>();
         commands3.add(new CommandPair(CommandPair.MT, 12));
         commands3.add(new CommandPair(CommandPair.FM, 8));
@@ -103,7 +103,7 @@ public class PDFGeneratorTest {
         commands3.add(new CommandPair(CommandPair.HALT, 6));
         commands3.add(new CommandPair(CommandPair.MT, 12));
         commands3.add(new CommandPair(CommandPair.FM, 8));
-        
+
         rankCommands.put("C", commands3);
 
         ArrayList<CommandPair> commands4 = new ArrayList<CommandPair>();
@@ -116,9 +116,9 @@ public class PDFGeneratorTest {
         commands4.add(new CommandPair(CommandPair.MT, 12));
         commands4.add(new CommandPair(CommandPair.HALT, 7));
         commands4.add(new CommandPair(CommandPair.MT, 12));
-        
+
         rankCommands.put("D", commands4);
-        
+
         ArrayList<CommandPair> commands5 = new ArrayList<CommandPair>();
         commands5.add(new CommandPair(CommandPair.MT, 12));
         commands5.add(new CommandPair(CommandPair.FM, 8));
@@ -129,9 +129,9 @@ public class PDFGeneratorTest {
         commands5.add(new CommandPair(CommandPair.MT, 12));
         commands5.add(new CommandPair(CommandPair.HALT, 7));
         commands5.add(new CommandPair(CommandPair.MT, 12));
-        
+
         rankCommands.put("E", commands5);
-        
+
         ArrayList<CommandPair> commands6 = new ArrayList<CommandPair>();
         commands6.add(new CommandPair(CommandPair.MT, 12));
         commands6.add(new CommandPair(CommandPair.FM, 8));
@@ -142,16 +142,16 @@ public class PDFGeneratorTest {
         commands6.add(new CommandPair(CommandPair.MT, 12));
         commands6.add(new CommandPair(CommandPair.HALT, 7));
         commands6.add(new CommandPair(CommandPair.MT, 12));
-        
+
         rankCommands.put("FASF", commands6);
-        
+
 
         endPositions = new HashMap<String, RankPosition>();
         endPositions.put("A", new RankPosition(new Point(10, 30), new Point(60,
                 10)));
         endPositions.put("B", new RankPosition(new Point(70, 40), new Point(50,
                 25)));
-        
+
         move.setStartPositions(startPositions);
         move.setCommands(rankCommands);
         move.setEndPositions(endPositions);
@@ -159,7 +159,7 @@ public class PDFGeneratorTest {
         move.setComments("This is the first move");
 
         expectedDrillInfo.getMoves().add(move);
-        
+
         testPDFGenerator(expectedDrillInfo, new File(outputPath
                 + "2-routine.pdf"));
     }

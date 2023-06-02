@@ -20,14 +20,14 @@ public class ErrorDialog {
         error.setAlwaysOnTop(true);
         error.setLocationRelativeTo(window);
         error.setModalityType(ModalityType.APPLICATION_MODAL);
-        
+
         JPanel errorPanel = new JPanel();
         errorPanel.setLayout(new BoxLayout(errorPanel,BoxLayout.Y_AXIS));
-        
+
         JLabel errorLabel = new JLabel();
         errorLabel.setText(errorMessage);
         errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        
+
         JButton confirmationButton = new JButton("OK");
         confirmationButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         confirmationButton.addActionListener(new ActionListener() {
@@ -35,10 +35,10 @@ public class ErrorDialog {
                 error.dispose();
             }
         });
-        
+
         errorPanel.add(errorLabel);
         errorPanel.add(confirmationButton);
-        
+
         error.add(errorPanel);
         error.setVisible(true);
     }

@@ -15,27 +15,27 @@ import org.bigredbands.mb.controllers.MainController;
 
 /**
  * This class creates the initial window after the program is called.
- * 
+ *
  * It creates an initial window with three buttons, centered both horizontally and vertically
- * 
+ *
  * Button 1: New - creates a new project
- * 
+ *
  * Button 2: Load - loads an existing project
- * 
+ *
  * Button 3: Cancel - exits the program
  */
 public class IntroView {
-    
+
     //window which everything will be displayed on
     private JFrame window;
     //size of the buttons
     private static final Dimension BUTTON_SIZE = new Dimension(100,20);
     //used to interact with the controller
     private MainView mainView;
-    
+
     public IntroView(MainView main) {
         this.mainView = main;
-        
+
         //Set up the defining characteristics of the window
         window = new JFrame("RankPanda 2.0");
         window.setSize(400, 300);
@@ -46,7 +46,7 @@ public class IntroView {
         //The top level container in which all other things will be placed
         JPanel container = new JPanel();
         window.add(container);
-        
+
         //Use GridBagLayout to organize the buttons
         GridBagConstraints grid = new GridBagConstraints();
         container.setLayout(new GridBagLayout());
@@ -64,7 +64,7 @@ public class IntroView {
             public void actionPerformed(ActionEvent arg0) {
                 exit();
                 mainView.createNewProject();
-            }            
+            }
         });
 
         JPanel loadButtonPanel = new JPanel();
@@ -80,7 +80,7 @@ public class IntroView {
         loadButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent arg0) {
                 mainView.loadProject();
-            }            
+            }
         });
 
         JPanel cancelButtonPanel = new JPanel();
@@ -97,18 +97,18 @@ public class IntroView {
             public void actionPerformed(ActionEvent arg0) {
                 exit();
                 mainView.closeProgram();
-            }            
+            }
         });
 
         //Now that everything on the window is set up, display the window
         window.setVisible(true);
     }
-    
+
     //Return the window of this IntroView
     public JFrame getWindow() {
         return window;
     }
-    
+
     //Exit the intro view closing the intro window
     public void exit() {
         window.dispose();
