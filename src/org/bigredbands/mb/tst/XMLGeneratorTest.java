@@ -18,11 +18,18 @@ import org.bigredbands.mb.models.Move;
 import org.bigredbands.mb.models.Point;
 import org.bigredbands.mb.models.RankPosition;
 import org.junit.Test;
+import org.junit.BeforeClass;
 import org.xml.sax.SAXException;
 
 public class XMLGeneratorTest {
 
-    private final String outputPath = "tst-data/XMLGenerator/output/";
+    private static final String outputPath = "out/test/XMLGeneratorTest/";
+
+    @BeforeClass
+    public static void createOutputDir() {
+        // Create the output directory if it doesn't already exist
+        new File(outputPath).mkdirs();
+    }
 
     @Test
     public void testOneTempoChange() throws ParserConfigurationException, SAXException, IOException, DrillXMLException {
