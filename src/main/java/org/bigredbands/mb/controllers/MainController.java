@@ -9,7 +9,6 @@ import java.util.HashSet;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.pdfbox.exceptions.COSVisitorException;
 import org.bigredbands.mb.exceptions.DrillXMLException;
 import org.bigredbands.mb.models.CommandPair;
 import org.bigredbands.mb.models.DrillInfo;
@@ -1051,10 +1050,6 @@ public class MainController implements ControllerInterface, SynchronizedControll
             PDFGenerator pdfGenerator = new PDFGenerator();
             try {
                 pdfGenerator.createPDF(drillInfo, file);
-            } catch (COSVisitorException e) {
-                // TODO Auto-generated catch block
-                mainView.displayError("COSVisitorException occurred in generating PDF");
-                e.printStackTrace();
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 mainView.displayError("IOException occurred in generating PDF");
