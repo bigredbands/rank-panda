@@ -45,10 +45,10 @@ import javax.swing.border.LineBorder;
 
 import org.bigredbands.mb.controllers.ControllerInterface;
 import org.bigredbands.mb.controllers.MainController;
+import org.bigredbands.mb.exceptions.FileSelectionException;
 import org.bigredbands.mb.models.CommandPair;
 import org.bigredbands.mb.models.Point;
 import org.bigredbands.mb.models.RankPosition;
-
 
 /**
  * This class handles the project screen. This is the UI that
@@ -1428,10 +1428,12 @@ public class ProjectView {
      * @param as If as==true, save as. If as==false, normal save.
      */
     private void onSave(boolean as) {
-        if (as) mainView.saveProjectAs();
-        else mainView.saveProject();
-        //TODO: Don't make saved true if the saving process is cancelled
-        saved = true;
+        try {
+            if (as) saved = mainView.saveProjectAs();
+            else saved = mainView.saveProject();
+        } catch (FileSelectionException e) {
+            mainView.displayError(e.getMessage());
+        }
         updateProjectTitle();
     }
 
