@@ -458,7 +458,7 @@ public class FootballField extends JPanel {
      private void drawRankPoint(Point p){
          int size = 10;
          Graphics2D g2 = (Graphics2D) this.getGraphics();
-         g2.fillOval((int)p.getX()-(size/2),(int)p.getY()-(size/2),size,size);
+         g2.fillOval((int)p.X()-(size/2),(int)p.Y()-(size/2),size,size);
      }
 
      /**
@@ -469,7 +469,7 @@ public class FootballField extends JPanel {
          int size = 10;
          Graphics2D g2 = (Graphics2D) this.getGraphics();
          g2.setPaint(Color.GRAY);
-         g2.fillOval((int)p.getX()-(size/2),(int)p.getY()-(size/2),size,size);
+         g2.fillOval((int)p.X()-(size/2),(int)p.Y()-(size/2),size,size);
      }
 
 
@@ -496,10 +496,10 @@ public class FootballField extends JPanel {
             //define points for each line
             locus = rankHash.get(rankName);
 
-            x1 = locus.getFront().getX();
-            y1 = locus.getFront().getY();
-            x4 = locus.getEnd().getX();
-            y4 = locus.getEnd().getY();
+            x1 = locus.getFront().X();
+            y1 = locus.getFront().Y();
+            x4 = locus.getEnd().X();
+            y4 = locus.getEnd().Y();
 
             switch (locus.getLineType()) {
                 case RankPosition.LINE:
@@ -510,15 +510,15 @@ public class FootballField extends JPanel {
                             topLeftY + y4*scaleFactor));
                     break;
                 case RankPosition.CURVE:
-                    float xMid=locus.getMidpoint().getX();
-                    float yMid=locus.getMidpoint().getY();
+                    float xMid=locus.getMidpoint().X();
+                    float yMid=locus.getMidpoint().Y();
                     x2=(x1+x4)/2+2*(xMid-(x1+x4)/2);
                     y2=(y1+y4)/2+2*(yMid-(y1+y4)/2);
                     shapeMap.put(rankName, new QuadCurve2D.Float(topLeftX + x1*scaleFactor, topLeftY + y1*scaleFactor, topLeftX + x2*scaleFactor, topLeftY + y2*scaleFactor, topLeftX + x4*scaleFactor, topLeftY + y4*scaleFactor));
                     break;
                 case RankPosition.CORNER:
-                    xMid=locus.getMidpoint().getX();
-                    yMid=locus.getMidpoint().getY();
+                    xMid=locus.getMidpoint().X();
+                    yMid=locus.getMidpoint().Y();
                     Path2D cornerPath = new Path2D.Float();
 
                     cornerPath.moveTo(topLeftX + x1*scaleFactor,topLeftY + y1*scaleFactor);
@@ -545,10 +545,10 @@ public class FootballField extends JPanel {
 
         //define points for each line
 
-        x1 = locus.getFront().getX();
-        y1 = locus.getFront().getY();
-        x4 = locus.getEnd().getX();
-        y4 = locus.getEnd().getY();
+        x1 = locus.getFront().X();
+        y1 = locus.getFront().Y();
+        x4 = locus.getEnd().X();
+        y4 = locus.getEnd().Y();
 
         switch (locus.getLineType()) {
         case RankPosition.LINE:
@@ -558,8 +558,8 @@ public class FootballField extends JPanel {
                     topLeftX + x4*scaleFactor,
                     topLeftY + y4*scaleFactor);
         case RankPosition.CURVE:
-            float xMid=locus.getMidpoint().getX();
-            float yMid=locus.getMidpoint().getY();
+            float xMid=locus.getMidpoint().X();
+            float yMid=locus.getMidpoint().Y();
             x2=(x1+x4)/2+2*(xMid-(x1+x4)/2);
             y2=(y1+y4)/2+2*(yMid-(y1+y4)/2);
             return new QuadCurve2D.Float(topLeftX + x1*scaleFactor,
@@ -569,8 +569,8 @@ public class FootballField extends JPanel {
                     topLeftX + x4*scaleFactor,
                     topLeftY + y4*scaleFactor);
         case RankPosition.CORNER:
-            xMid=locus.getMidpoint().getX();
-            yMid=locus.getMidpoint().getY();
+            xMid=locus.getMidpoint().X();
+            yMid=locus.getMidpoint().Y();
             Path2D cornerPath = new Path2D.Float();
 
             cornerPath.moveTo(topLeftX + x1*scaleFactor,topLeftY + y1*scaleFactor);
@@ -721,13 +721,13 @@ public class FootballField extends JPanel {
                             System.out.println("right clicked on DTP destination!");
                             if(DTPShape instanceof Line2D){
                                 DTPRank.setLineType(RankPosition.CURVE);
-                                DTPRank.getMidpoint().setPoint((DTPRank.getEnd().getX()+DTPRank.getFront().getX())/2,
-                                        (DTPRank.getEnd().getY()+DTPRank.getFront().getY())/2);
+                                DTPRank.getMidpoint().setPoint((DTPRank.getEnd().X()+DTPRank.getFront().X())/2,
+                                        (DTPRank.getEnd().Y()+DTPRank.getFront().Y())/2);
                             }
                             if(DTPShape instanceof QuadCurve2D){
                                 DTPRank.setLineType(RankPosition.LINE);
-                                DTPRank.getMidpoint().setPoint((DTPRank.getEnd().getX()+DTPRank.getFront().getX())/2,
-                                        (DTPRank.getEnd().getY()+DTPRank.getFront().getY())/2);
+                                DTPRank.getMidpoint().setPoint((DTPRank.getEnd().X()+DTPRank.getFront().X())/2,
+                                        (DTPRank.getEnd().Y()+DTPRank.getFront().Y())/2);
                             }
 
                             projectView.repaintFieldPanel();
@@ -745,11 +745,11 @@ public class FootballField extends JPanel {
                                 if(lineMap.get(rankName) instanceof Line2D){
                                     RankPosition rightClickedRank=mainView.getRankPositions().get(rankName);
                                     rightClickedRank.setLineType(RankPosition.CURVE);
-                                    rightClickedRank.getMidpoint().setPoint((rightClickedRank.getEnd().getX()+rightClickedRank.getFront().getX())/2, (rightClickedRank.getEnd().getY()+rightClickedRank.getFront().getY())/2);
+                                    rightClickedRank.getMidpoint().setPoint((rightClickedRank.getEnd().X()+rightClickedRank.getFront().X())/2, (rightClickedRank.getEnd().Y()+rightClickedRank.getFront().Y())/2);
                                 } else if(lineMap.get(rankName) instanceof QuadCurve2D) {
                                     RankPosition rightClickedRank=mainView.getRankPositions().get(rankName);
                                     rightClickedRank.setLineType(RankPosition.LINE);
-                                    rightClickedRank.getMidpoint().setPoint((rightClickedRank.getEnd().getX()+rightClickedRank.getFront().getX())/2, (rightClickedRank.getEnd().getY()+rightClickedRank.getFront().getY())/2);
+                                    rightClickedRank.getMidpoint().setPoint((rightClickedRank.getEnd().X()+rightClickedRank.getFront().X())/2, (rightClickedRank.getEnd().Y()+rightClickedRank.getFront().Y())/2);
                                 }
 
                                 projectView.repaintFieldPanel();
@@ -980,8 +980,8 @@ public class FootballField extends JPanel {
                                 Point head = mainView.getRankPositions().get(rank).getFront();
 
                                 // TODO: HACK - snap to most recent head
-                                float preSnapX = head.getX() + (arg0.getX()-xDragOrigin)/scaleFactor;
-                                float preSnapY = head.getY() + (arg0.getY()-yDragOrigin)/scaleFactor;
+                                float preSnapX = head.X() + (arg0.getX()-xDragOrigin)/scaleFactor;
+                                float preSnapY = head.Y() + (arg0.getY()-yDragOrigin)/scaleFactor;
                                 float headSnapX = preSnapX;
                                 float headSnapY = preSnapY;
                                 if (mainView.isExactGrid()) {
@@ -990,8 +990,8 @@ public class FootballField extends JPanel {
                                     headSnapY = gridMatchY(preSnapY);
                                 }
 
-                                float endSnapX = end.getX()+(arg0.getX()-xDragOrigin)/(scaleFactor) + (headSnapX - preSnapX);
-                                float endSnapY = end.getY()+(arg0.getY()-yDragOrigin)/(scaleFactor) + (headSnapY - preSnapY);
+                                float endSnapX = end.X()+(arg0.getX()-xDragOrigin)/(scaleFactor) + (headSnapX - preSnapX);
+                                float endSnapY = end.Y()+(arg0.getY()-yDragOrigin)/(scaleFactor) + (headSnapY - preSnapY);
 
                                 head.setPoint(headSnapX, headSnapY);
                                 end.setPoint(endSnapX, endSnapY);
@@ -1004,8 +1004,8 @@ public class FootballField extends JPanel {
 
                             } else if (mainView.getSelectPoint() == HEAD_SELECTED) {
                                 Point head = mainView.getRankPositions().get(rank).getFront();
-                                float snapX = head.getX() + (arg0.getX()-xDragOrigin)/scaleFactor;
-                                float snapY = head.getY() + (arg0.getY()-yDragOrigin)/scaleFactor;
+                                float snapX = head.X() + (arg0.getX()-xDragOrigin)/scaleFactor;
+                                float snapY = head.Y() + (arg0.getY()-yDragOrigin)/scaleFactor;
                                 if (mainView.isExactGrid()) {
                                     // snap the new head position to the grid
                                     snapX = gridMatchX(snapX);
@@ -1021,8 +1021,8 @@ public class FootballField extends JPanel {
                                 projectView.repaintScrollBar();
                             } else {
                                 Point end=mainView.getRankPositions().get(rank).getEnd();
-                                float snapX = end.getX() + (arg0.getX()-xDragOrigin)/scaleFactor;
-                                float snapY = end.getY() + (arg0.getY()-yDragOrigin)/scaleFactor;
+                                float snapX = end.X() + (arg0.getX()-xDragOrigin)/scaleFactor;
+                                float snapY = end.Y() + (arg0.getY()-yDragOrigin)/scaleFactor;
                                 if (mainView.isExactGrid()) {
                                     // snap the new head position to the grid
                                     snapX = gridMatchX(snapX);
@@ -1043,8 +1043,8 @@ public class FootballField extends JPanel {
                                 Point mid = mainView.getRankPositions().get(rank).getMidpoint();
 
                                 // TODO: HACK - snap to most recent head
-                                float preSnapX = head.getX() + (arg0.getX()-xDragOrigin)/scaleFactor;
-                                float preSnapY = head.getY() + (arg0.getY()-yDragOrigin)/scaleFactor;
+                                float preSnapX = head.X() + (arg0.getX()-xDragOrigin)/scaleFactor;
+                                float preSnapY = head.Y() + (arg0.getY()-yDragOrigin)/scaleFactor;
                                 float headSnapX = preSnapX;
                                 float headSnapY = preSnapY;
                                 if (mainView.isExactGrid()) {
@@ -1053,10 +1053,10 @@ public class FootballField extends JPanel {
                                     headSnapY = gridMatchY(preSnapY);
                                 }
 
-                                float endSnapX = end.getX()+(arg0.getX()-xDragOrigin)/(scaleFactor) + (headSnapX - preSnapX);
-                                float endSnapY = end.getY()+(arg0.getY()-yDragOrigin)/(scaleFactor) + (headSnapY - preSnapY);
-                                float midSnapX = mid.getX()+(arg0.getX()-xDragOrigin)/(scaleFactor) + (headSnapX - preSnapX);
-                                float midSnapY = mid.getY()+(arg0.getY()-yDragOrigin)/(scaleFactor) + (headSnapY - preSnapY);
+                                float endSnapX = end.X()+(arg0.getX()-xDragOrigin)/(scaleFactor) + (headSnapX - preSnapX);
+                                float endSnapY = end.Y()+(arg0.getY()-yDragOrigin)/(scaleFactor) + (headSnapY - preSnapY);
+                                float midSnapX = mid.X()+(arg0.getX()-xDragOrigin)/(scaleFactor) + (headSnapX - preSnapX);
+                                float midSnapY = mid.Y()+(arg0.getY()-yDragOrigin)/(scaleFactor) + (headSnapY - preSnapY);
 
                                 head.setPoint(headSnapX, headSnapY);
                                 end.setPoint(endSnapX, endSnapY);
@@ -1071,8 +1071,8 @@ public class FootballField extends JPanel {
                                 projectView.repaintScrollBar();
                             } else if(mainView.getSelectPoint()==HEAD_SELECTED){
                                 Point head=mainView.getRankPositions().get(rank).getFront();
-                                float snapX = head.getX() + (arg0.getX()-xDragOrigin)/scaleFactor;
-                                float snapY = head.getY() + (arg0.getY()-yDragOrigin)/scaleFactor;
+                                float snapX = head.X() + (arg0.getX()-xDragOrigin)/scaleFactor;
+                                float snapY = head.Y() + (arg0.getY()-yDragOrigin)/scaleFactor;
                                 if (mainView.isExactGrid()) {
                                     // snap the new head position to the grid
                                     snapX = gridMatchX(snapX);
@@ -1087,8 +1087,8 @@ public class FootballField extends JPanel {
                                 projectView.repaintScrollBar();
                             } else if(mainView.getSelectPoint()==END_SELECTED){
                                 Point end=mainView.getRankPositions().get(rank).getEnd();
-                                float snapX = end.getX() + (arg0.getX()-xDragOrigin)/scaleFactor;
-                                float snapY = end.getY() + (arg0.getY()-yDragOrigin)/scaleFactor;
+                                float snapX = end.X() + (arg0.getX()-xDragOrigin)/scaleFactor;
+                                float snapY = end.Y() + (arg0.getY()-yDragOrigin)/scaleFactor;
                                 System.out.println((arg0.getX()-xDragOrigin)*scaleFactor);
                                 if (mainView.isExactGrid()) {
                                     // snap the new head position to the grid
@@ -1104,8 +1104,8 @@ public class FootballField extends JPanel {
                                 projectView.repaintScrollBar();
                             } else {
                                 Point mid=mainView.getRankPositions().get(rank).getMidpoint();
-                                float snapX = mid.getX() + (arg0.getX()-xDragOrigin)/scaleFactor;
-                                float snapY = mid.getY() + (arg0.getY()-yDragOrigin)/scaleFactor;
+                                float snapX = mid.X() + (arg0.getX()-xDragOrigin)/scaleFactor;
+                                float snapY = mid.Y() + (arg0.getY()-yDragOrigin)/scaleFactor;
                                 System.out.println((arg0.getX()-xDragOrigin)*scaleFactor);
                                 if (mainView.isExactGrid()) {
                                     // snap the new head position to the grid
@@ -1139,18 +1139,18 @@ public class FootballField extends JPanel {
                         if(mainView.getSelectPoint() == LINE_SELECTED) {
                             Point end = DTPRank.getEnd();
                             Point head = DTPRank.getFront();
-                            end.setPoint(end.getX()+(arg0.getX()-xDragOrigin)/(scaleFactor),
-                                    end.getY()+(arg0.getY()-yDragOrigin)/(scaleFactor));
-                            head.setPoint(head.getX()+(arg0.getX()-xDragOrigin)/(scaleFactor),
-                                    head.getY()+(arg0.getY()-yDragOrigin)/(scaleFactor));
+                            end.setPoint(end.X()+(arg0.getX()-xDragOrigin)/(scaleFactor),
+                                    end.Y()+(arg0.getY()-yDragOrigin)/(scaleFactor));
+                            head.setPoint(head.X()+(arg0.getX()-xDragOrigin)/(scaleFactor),
+                                    head.Y()+(arg0.getY()-yDragOrigin)/(scaleFactor));
                             xDragOrigin=arg0.getX();
                             yDragOrigin=arg0.getY();
                             repaint();
                             projectView.repaintScrollBar();
                         } else if(mainView.getSelectPoint() == HEAD_SELECTED) {
                             Point head = DTPRank.getFront();
-                            float newX = head.getX() + (arg0.getX()-xDragOrigin)/scaleFactor;
-                            float newY = head.getY() + (arg0.getY()-yDragOrigin)/scaleFactor;
+                            float newX = head.X() + (arg0.getX()-xDragOrigin)/scaleFactor;
+                            float newY = head.Y() + (arg0.getY()-yDragOrigin)/scaleFactor;
                             System.out.println((arg0.getX()-xDragOrigin)*scaleFactor);
                             if (mainView.isExactGrid()) {
                                 // snap the new head position to the grid
@@ -1164,8 +1164,8 @@ public class FootballField extends JPanel {
                             projectView.repaintScrollBar();
                         } else {
                             Point end = DTPRank.getEnd();
-                            float newX = end.getX() + (arg0.getX()-xDragOrigin)/scaleFactor;
-                            float newY = end.getY() + (arg0.getY()-yDragOrigin)/scaleFactor;
+                            float newX = end.X() + (arg0.getX()-xDragOrigin)/scaleFactor;
+                            float newY = end.Y() + (arg0.getY()-yDragOrigin)/scaleFactor;
                             System.out.println((arg0.getX()-xDragOrigin)*scaleFactor);
                             if (mainView.isExactGrid()) {
                                 // snap the new head position to the grid
@@ -1183,20 +1183,20 @@ public class FootballField extends JPanel {
                             Point end = DTPRank.getEnd();
                             Point head = DTPRank.getFront();
                             Point mid = DTPRank.getMidpoint();
-                            end.setPoint(end.getX()+(arg0.getX()-xDragOrigin)/(scaleFactor),
-                                    end.getY()+(arg0.getY()-yDragOrigin)/(scaleFactor));
-                            head.setPoint(head.getX()+(arg0.getX()-xDragOrigin)/(scaleFactor),
-                                    head.getY()+(arg0.getY()-yDragOrigin)/(scaleFactor));
-                            mid.setPoint(mid.getX()+(arg0.getX()-xDragOrigin)/(scaleFactor),
-                                    mid.getY()+(arg0.getY()-yDragOrigin)/(scaleFactor));
+                            end.setPoint(end.X()+(arg0.getX()-xDragOrigin)/(scaleFactor),
+                                    end.Y()+(arg0.getY()-yDragOrigin)/(scaleFactor));
+                            head.setPoint(head.X()+(arg0.getX()-xDragOrigin)/(scaleFactor),
+                                    head.Y()+(arg0.getY()-yDragOrigin)/(scaleFactor));
+                            mid.setPoint(mid.X()+(arg0.getX()-xDragOrigin)/(scaleFactor),
+                                    mid.Y()+(arg0.getY()-yDragOrigin)/(scaleFactor));
                             xDragOrigin=arg0.getX();
                             yDragOrigin=arg0.getY();
                             repaint();
                             projectView.repaintScrollBar();
                         } else if(mainView.getSelectPoint()==HEAD_SELECTED) {
                             Point head = DTPRank.getFront();
-                            float newX = head.getX() + (arg0.getX()-xDragOrigin)/scaleFactor;
-                            float newY = head.getY() + (arg0.getY()-yDragOrigin)/scaleFactor;
+                            float newX = head.X() + (arg0.getX()-xDragOrigin)/scaleFactor;
+                            float newY = head.Y() + (arg0.getY()-yDragOrigin)/scaleFactor;
                             System.out.println((arg0.getX()-xDragOrigin)*scaleFactor);
                             if (mainView.isExactGrid()) {
                                 // snap the new head position to the grid
@@ -1211,8 +1211,8 @@ public class FootballField extends JPanel {
                             projectView.repaintScrollBar();
                         } else if(mainView.getSelectPoint()==END_SELECTED){
                             Point end = DTPRank.getEnd();
-                            float newX = end.getX() + (arg0.getX()-xDragOrigin)/scaleFactor;
-                            float newY = end.getY() + (arg0.getY()-yDragOrigin)/scaleFactor;
+                            float newX = end.X() + (arg0.getX()-xDragOrigin)/scaleFactor;
+                            float newY = end.Y() + (arg0.getY()-yDragOrigin)/scaleFactor;
                             System.out.println((arg0.getX()-xDragOrigin)*scaleFactor);
                             if (mainView.isExactGrid()) {
                                 // snap the new head position to the grid
@@ -1226,8 +1226,8 @@ public class FootballField extends JPanel {
                             projectView.repaintScrollBar();
                         } else {
                             Point mid = DTPRank.getMidpoint();
-                            float newX = mid.getX() + (arg0.getX()-xDragOrigin)/scaleFactor;
-                            float newY = mid.getY() + (arg0.getY()-yDragOrigin)/scaleFactor;
+                            float newX = mid.X() + (arg0.getX()-xDragOrigin)/scaleFactor;
+                            float newY = mid.Y() + (arg0.getY()-yDragOrigin)/scaleFactor;
                             System.out.println((arg0.getX()-xDragOrigin)*scaleFactor);
                             if (mainView.isExactGrid()) {
                                 // snap the new head position to the grid

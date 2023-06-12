@@ -1,25 +1,27 @@
 package org.bigredbands.mb.models;
 
+import java.awt.geom.Point2D;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
 
-public class Point {
-
-    private Float x;
-    private Float y;
-
+/**
+ * The Point class represents a point or vector in two dimensional space,
+ * similar to the javafx.geometry.Point2D class. The X and Y coordinates of each
+ * point are stored and accessed as single-precision floating point values.
+ */
+public class Point extends Point2D.Float {
     public Point(float x, float y){
-        this.x = x;
-        this.y = y;
+        super(x, y);
     }
 
-    public float getX(){
-        return x;
+    public float X() {
+        return this.x;
     }
 
-    public float getY(){
-        return y;
+    public float Y() {
+        return this.y;
     }
 
     public Point interpolate(Point b, float t) {
@@ -36,29 +38,6 @@ public class Point {
         return "Point [x=" + x + ", y=" + y + "]";
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        //general comparisons
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-
-        //field comparisons
-        Point other = (Point) obj;
-        if (Math.abs(x - other.x) > 0.1) {
-            return false;
-        }
-        if (Math.abs(y - other.y) > 0.1) {
-            return false;
-        }
-        return true;
-    }
     public double distance(double x, double y){
         return Math.sqrt((this.x-x)*(this.x-x)+(this.y-y)*(this.y-y));
     }
@@ -72,7 +51,7 @@ public class Point {
         pointTag.appendChild(xTag);
 
         //add the coordinate value to the x coordinate tag
-        Text xText = document.createTextNode(x.toString());
+        Text xText = document.createTextNode(java.lang.Float.toString(x));
         xTag.appendChild(xText);
 
         //add the y coordinate tag
@@ -80,7 +59,7 @@ public class Point {
         pointTag.appendChild(yTag);
 
         //add the coordinate value to the y coordinate tag
-        Text yText = document.createTextNode(y.toString());
+        Text yText = document.createTextNode(java.lang.Float.toString(y));
         yTag.appendChild(yText);
 
         return pointTag;

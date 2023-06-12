@@ -25,8 +25,8 @@ public class RankPosition {
     public RankPosition(Point front, Point end){
         this.front = front;
         this.end = end;
-        float midX = (front.getX()+ end.getX())/2.0f;
-        float midY = (front.getY()+ end.getY())/2.0f;
+        float midX = (front.X()+ end.X())/2.0f;
+        float midY = (front.Y()+ end.Y())/2.0f;
         this.midpoint = new Point(midX, midY);
         this.lineType = LINE;
     }
@@ -39,10 +39,10 @@ public class RankPosition {
     }
 
     public RankPosition(RankPosition existingPosition) {
-        this.front = new Point(new Float(existingPosition.getFront().getX()), new Float(existingPosition.getFront().getY()));
-        this.end = new Point(new Float(existingPosition.getEnd().getX()), new Float(existingPosition.getEnd().getY()));
-        this.midpoint = new Point(new Float(existingPosition.getMidpoint().getX()), new Float(existingPosition.getMidpoint().getY()));
-        this.lineType = new Integer(existingPosition.getLineType());
+        this.front = new Point(existingPosition.getFront().X(), existingPosition.getFront().Y());
+        this.end = new Point(existingPosition.getEnd().X(), existingPosition.getEnd().Y());
+        this.midpoint = new Point(existingPosition.getMidpoint().X(), existingPosition.getMidpoint().Y());
+        this.lineType = existingPosition.getLineType();
     }
 
     /**
@@ -74,15 +74,15 @@ public class RankPosition {
     }
 
     public void incrementPointsYValue(float stepValue) {
-        front.setPoint(front.getX(), front.getY() + stepValue);
-        midpoint.setPoint(midpoint.getX(), midpoint.getY() + stepValue);
-        end.setPoint(end.getX(), end.getY() + stepValue);
+        front.setPoint(front.X(), front.Y() + stepValue);
+        midpoint.setPoint(midpoint.X(), midpoint.Y() + stepValue);
+        end.setPoint(end.X(), end.Y() + stepValue);
     }
 
     public void incrementPointsXValue(float stepValue) {
-        front.setPoint(front.getX() + stepValue, front.getY());
-        midpoint.setPoint(midpoint.getX() + stepValue, midpoint.getY());
-        end.setPoint(end.getX() + stepValue, end.getY());
+        front.setPoint(front.X() + stepValue, front.Y());
+        midpoint.setPoint(midpoint.X() + stepValue, midpoint.Y());
+        end.setPoint(end.X() + stepValue, end.Y());
     }
 
     @Override
@@ -173,8 +173,8 @@ public class RankPosition {
      */
     public Point rotate(float theta, Point origin, Point mover) {
         // determine length
-        float deltaX = (mover.getX()-origin.getX());
-        float deltaY = (origin.getY()-mover.getY());
+        float deltaX = (mover.X()-origin.X());
+        float deltaY = (origin.Y()-mover.Y());
         float length = (float) Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
 
         //determine reference angle
@@ -198,19 +198,19 @@ public class RankPosition {
         float newX = (float) (length*Math.cos(theta + referenceAngle));
         float newY = (float) (length*Math.sin(theta + referenceAngle));
 
-        return new Point(origin.getX() + newX, origin.getY() - newY);
+        return new Point(origin.X() + newX, origin.Y() - newY);
     }
 
     public void pinwheelMove(float theta) {
         //determine length
         if(this.lineType==this.LINE) {
-            float midX = (front.getX()+ end.getX())/2.0f;
-            float midY = (front.getY()+ end.getY())/2.0f;
+            float midX = (front.X()+ end.X())/2.0f;
+            float midY = (front.Y()+ end.Y())/2.0f;
             this.midpoint = new Point(midX, midY);
         }
 
-        float deltaX = (front.getX()-end.getX());
-        float deltaY = (front.getY()-end.getY());
+        float deltaX = (front.X()-end.X());
+        float deltaY = (front.Y()-end.Y());
         float halfLength = (float) ((Math.sqrt( Math.pow(deltaX, 2) + Math.pow(deltaY, 2)))/2.0);
 
         float referenceAngle;
@@ -238,11 +238,11 @@ public class RankPosition {
         float newY = (float) (halfLength*Math.sin(theta + referenceAngle));
 
 
-        front.setPoint((midpoint.getX() + newX), (midpoint.getY()+ newY));
-        end.setPoint((midpoint.getX() - newX), (midpoint.getY()- newY));
+        front.setPoint((midpoint.X() + newX), (midpoint.Y()+ newY));
+        end.setPoint((midpoint.X() - newX), (midpoint.Y()- newY));
 
-        //float midX = (front.getX()+ end.getX())/2.0f;
-        //float midY = (front.getY()+ end.getY())/2.0f;
+        //float midX = (front.X()+ end.X())/2.0f;
+        //float midY = (front.Y()+ end.Y())/2.0f;
         //this.midpoint = new Point(midX, midY);
     }
 
@@ -254,15 +254,15 @@ public class RankPosition {
      */
     public void expansionMove(float headExpansion, float tailExpansion) {
         if(this.lineType==this.LINE) {
-            float midX = (front.getX()+ end.getX())/2.0f;
-            float midY = (front.getY()+ end.getY())/2.0f;
+            float midX = (front.X()+ end.X())/2.0f;
+            float midY = (front.Y()+ end.Y())/2.0f;
             this.midpoint = new Point(midX, midY);
         }
 
-        float frontX = front.getX();
-        float frontY = front.getY();
-        float endX = end.getX();
-        float endY = end.getY();
+        float frontX = front.X();
+        float frontY = front.Y();
+        float endX = end.X();
+        float endY = end.Y();
 
         float referenceAngle = (float) Math.atan(((frontY-endY)/(frontX-endX)));
 
@@ -286,34 +286,34 @@ public class RankPosition {
             end.setPoint(endX + deltaXEnd, endY + deltaYEnd);
         }
 
-        float midX = (front.getX()+ end.getX())/2.0f;
-        float midY = (front.getY()+ end.getY())/2.0f;
+        float midX = (front.X()+ end.X())/2.0f;
+        float midY = (front.Y()+ end.Y())/2.0f;
         this.midpoint = new Point(midX, midY);
 
     }
 
     public void curveMoveAuto(float dist, int type) {
         if(this.lineType==this.LINE) {
-            float midX = (front.getX()+ end.getX())/2.0f;
-            float midY = (front.getY()+ end.getY())/2.0f;
+            float midX = (front.X()+ end.X())/2.0f;
+            float midY = (front.Y()+ end.Y())/2.0f;
             this.midpoint = new Point(midX, midY);
         }
 
         // type = 0 for left, 1 for right
-        float vX = front.getX() - end.getX();
-        float vY = front.getY() - end.getY();
+        float vX = front.X() - end.X();
+        float vY = front.Y() - end.Y();
         float len = (float)Math.sqrt(vX*vX + vY*vY);
         if(lineType==LINE) {
-            midpoint = new Point(end.getX()+vX/2.0f,end.getY()+vY/2.0f);
+            midpoint = new Point(end.X()+vX/2.0f,end.Y()+vY/2.0f);
         }
         if(type==0) {
-            midpoint = new Point(midpoint.getX()+vY*dist/len, midpoint.getY()-vX*dist/len);
+            midpoint = new Point(midpoint.X()+vY*dist/len, midpoint.Y()-vX*dist/len);
         }
         else {
-            midpoint = new Point(midpoint.getX()-vY*dist/len, midpoint.getY()+vX*dist/len);
+            midpoint = new Point(midpoint.X()-vY*dist/len, midpoint.Y()+vX*dist/len);
         }
-        float vmX = front.getX() - midpoint.getX();
-        float vmY = front.getY() - midpoint.getY();
+        float vmX = front.X() - midpoint.X();
+        float vmY = front.Y() - midpoint.Y();
         // TODO: make this math a little better suited to checking for linearity
         if(vX*vmY == vmX*vY) {
             lineType = LINE;
@@ -329,9 +329,9 @@ public class RankPosition {
             return;
         }
         else {
-            float xDisp = (front.getX() + end.getX())/2.0f - midpoint.getX();
-            float yDisp = (front.getY() + end.getY())/2.0f - midpoint.getY();
-            midpoint.setPoint(midpoint.getX() + t*xDisp, midpoint.getY() + t*yDisp);
+            float xDisp = (front.X() + end.X())/2.0f - midpoint.X();
+            float yDisp = (front.Y() + end.Y())/2.0f - midpoint.Y();
+            midpoint.setPoint(midpoint.X() + t*xDisp, midpoint.Y() + t*yDisp);
         }
     }
 
@@ -342,10 +342,10 @@ public class RankPosition {
             return;
         }
         else {
-            float xDisp = midpoint.getX() - (front.getX() + end.getX())/2.0f;
-            float yDisp = midpoint.getY() - (front.getY() + end.getY())/2.0f;
-            front.setPoint(front.getX() + t*xDisp, front.getY() + t*yDisp);
-            end.setPoint(end.getX() + t*xDisp, end.getY() + t*yDisp);
+            float xDisp = midpoint.X() - (front.X() + end.X())/2.0f;
+            float yDisp = midpoint.Y() - (front.Y() + end.Y())/2.0f;
+            front.setPoint(front.X() + t*xDisp, front.Y() + t*yDisp);
+            end.setPoint(end.X() + t*xDisp, end.Y() + t*yDisp);
             if(t==1) {
                 lineType = LINE;
             }
@@ -353,10 +353,10 @@ public class RankPosition {
     }
 
     public void directMove(RankPosition endpoint, float t) {
-        float vX = front.getX() - end.getX();
-        float vY = front.getY() - end.getY();
+        float vX = front.X() - end.X();
+        float vY = front.Y() - end.Y();
         if(lineType==LINE) {
-            midpoint = new Point(end.getX()+vX/2.0f,end.getY()+vY/2.0f);
+            midpoint = new Point(end.X()+vX/2.0f,end.Y()+vY/2.0f);
         }
 
         if(this.lineType == CURVE || endpoint.lineType == CURVE) {
@@ -387,8 +387,8 @@ public class RankPosition {
             this.midpoint = this.front.interpolate(this.end, 0.5f);
         }
 
-        return (float)(this.front.distance(this.midpoint.getX(), this.midpoint.getY()) +
-                this.end.distance(this.midpoint.getX(), this.midpoint.getY()));
+        return (float)(this.front.distance(this.midpoint.X(), this.midpoint.Y()) +
+                this.end.distance(this.midpoint.X(), this.midpoint.Y()));
     }
 
     private static float getPathLength(ArrayList<Point>path) {
@@ -411,40 +411,40 @@ public class RankPosition {
     }
 
     public void cornerMove(float t, int xDir, int yDir, int leadDir) {
-        float length = (float)Math.sqrt(Math.pow(front.getX() - end.getX(),2)
-                + Math.pow(front.getY() - end.getY(),2));
+        float length = (float)Math.sqrt(Math.pow(front.X() - end.X(),2)
+                + Math.pow(front.Y() - end.Y(),2));
 
         // leadDir is 0 if initially oriented horizontally (1 if vertical)
-        if(leadDir == 0 && front.getX() != end.getX()) {
+        if(leadDir == 0 && front.X() != end.X()) {
             // front will be moving in the y-direction, end in x
-            if(xDir*front.getX() > xDir*end.getX()) {
+            if(xDir*front.X() > xDir*end.X()) {
                 // set the pivot point
-                midpoint = new Point(front.getX(),front.getY());
-                front.setPoint(front.getX(), front.getY()+t*length*yDir);
-                end.setPoint(end.getX()+t*length*xDir, end.getY());
+                midpoint = new Point(front.X(),front.Y());
+                front.setPoint(front.X(), front.Y()+t*length*yDir);
+                end.setPoint(end.X()+t*length*xDir, end.Y());
             }
             // end will be moving in the y-direction, front in x
             else {
                 // set the pivot point
-                midpoint = new Point(end.getX(),end.getY());
-                end.setPoint(end.getX(), end.getY()+t*length*yDir);
-                front.setPoint(front.getX()+t*length*xDir, front.getY());
+                midpoint = new Point(end.X(),end.Y());
+                end.setPoint(end.X(), end.Y()+t*length*yDir);
+                front.setPoint(front.X()+t*length*xDir, front.Y());
             }
         }
-        else if(leadDir == 1 && front.getY() != end.getY()) {
+        else if(leadDir == 1 && front.Y() != end.Y()) {
             // front moving in x, end in y
-            if(yDir*front.getY() > yDir*end.getY()) {
+            if(yDir*front.Y() > yDir*end.Y()) {
                 // set the pivot point
-                midpoint = new Point(front.getX(),front.getY());
-                front.setPoint(front.getX()+t*length*xDir, front.getY());
-                end.setPoint(end.getX(), end.getY()+t*length*yDir);
+                midpoint = new Point(front.X(),front.Y());
+                front.setPoint(front.X()+t*length*xDir, front.Y());
+                end.setPoint(end.X(), end.Y()+t*length*yDir);
             }
             // front moving in y, end in x
             else {
                 // set the pivot point
-                midpoint = new Point(end.getX(),end.getY());
-                front.setPoint(front.getX(), front.getY()+t*length*yDir);
-                end.setPoint(end.getX()+t*length*xDir, end.getY());
+                midpoint = new Point(end.X(),end.Y());
+                front.setPoint(front.X(), front.Y()+t*length*yDir);
+                end.setPoint(end.X()+t*length*xDir, end.Y());
             }
         }
         else {

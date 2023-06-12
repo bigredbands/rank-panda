@@ -260,9 +260,9 @@ public class CommandPair {
 
             //RankPosition format: lineType;front.x,front.y;mid.x,mid.y;end.x,end.y
             String str = this.destination.getLineType() + ";" +
-                    this.destination.getFront().getX() + "," + this.destination.getFront().getY() + ";" +
-                    this.destination.getMidpoint().getX() + "," + this.destination.getMidpoint().getY() + ";" +
-                    this.destination.getEnd().getX() + "," + this.destination.getEnd().getY();
+                    this.destination.getFront().X() + "," + this.destination.getFront().Y() + ";" +
+                    this.destination.getMidpoint().X() + "," + this.destination.getMidpoint().Y() + ";" +
+                    this.destination.getEnd().X() + "," + this.destination.getEnd().Y();
             Text destText = document.createTextNode(str);
             destTag.appendChild(destText);
         }
