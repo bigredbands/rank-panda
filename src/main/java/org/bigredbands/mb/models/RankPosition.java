@@ -167,17 +167,37 @@ public class RankPosition {
         return positionTag;
     }
 
-    /**This function sets the end position for Gate Turns
-     * @param head
-     *
-     * @param f - the angle measure in degrees
-     * @param head
-     * @param point - the end of the rank being moved
+    /**
+     * This function sets the end position for Gate Turns
+     * @param theta - how much the rank is turning by
+     * @param moveable - which part is moving
      */
     public void gateTurnMove(float theta, PART moveable) {
-        //determine length
-        float deltaX = (front.getX()-end.getX());
-        float deltaY = (end.getY()-front.getY());
+        switch (moveable) {
+            case HEAD:
+                front = rotate(theta, end, front);
+                midpoint = rotate(theta, end, midpoint);
+                break;
+            case TAIL:
+                end = rotate(theta, front, end);
+                midpoint = rotate(theta, front, midpoint);
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * This function is a helper function for the gateTurnMove function.
+     * @param theta - the angle of rotation
+     * @param origin - the end of the line that is the origin of the rotation
+     * @param mover - the end of the line that is doing the rotating
+     * @return The new location of the rotated end of the line as a Point
+     */
+    public Point rotate(float theta, Point origin, Point mover) {
+        // determine length
+        float deltaX = (mover.getX()-origin.getX());
+        float deltaY = (origin.getY()-mover.getY());
         float length = (float) Math.sqrt(Math.pow(deltaX, 2) + Math.pow(deltaY, 2));
 
         //determine reference angle
@@ -186,37 +206,23 @@ public class RankPosition {
 
         if (deltaX==0&&deltaY>0){
             referenceAngle = (float) (Math.PI/2.0f);
-        }else if (deltaX==0&&deltaY<0){
+        } else if (deltaX==0&&deltaY<0) {
             referenceAngle=(float) (Math.PI/2.0f)*(-1.0f);
-        }else if (deltaY==0&&deltaX>0){
+        } else if (deltaY==0&&deltaX>0) {
             referenceAngle=0.0f;
-        }else if (deltaY==0&&deltaX<0){
+        } else if (deltaY==0&&deltaX<0) {
             referenceAngle=(float) Math.PI;
-        }else{
+        } else {
             referenceAngle = (float) Math.atan(deltaY/deltaX);
             if (deltaX<0){
                 referenceAngle=(float) Math.PI+referenceAngle;
             }
         }
 
-
         float newX = (float) (length*Math.cos(theta + referenceAngle));
         float newY = (float) (length*Math.sin(theta + referenceAngle));
 
-        switch(moveable) {
-            case HEAD:
-                front.setPoint((end.getX() + newX), (end.getY() - newY));
-                break;
-            case TAIL:
-                end.setPoint((front.getX() - newX), (front.getY() + newY));
-                break;
-            default:
-                break;
-        }
-
-        float midX = (front.getX()+ end.getX())/2.0f;
-        float midY = (front.getY()+ end.getY())/2.0f;
-        this.midpoint = new Point(midX, midY);
+        return new Point(origin.getX() + newX, origin.getY() - newY);
     }
 
     public void pinwheelMove(float theta) {

@@ -14,6 +14,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.bigredbands.mb.controllers.ControllerInterface;
 import org.bigredbands.mb.models.CommandPair;
 import org.bigredbands.mb.models.RankPosition;
+import org.bigredbands.mb.exceptions.FileSelectionException;
 
 
 /**
@@ -598,23 +599,32 @@ public class MainView implements ViewInterface {
     /**
      * Saves the project at its current location. If no location is specified,
      * prompt the user for the save location
+     * 
+     * @return - True if a file was chosen, false if the save process was canceled
      */
-    public void saveProject() {
+    public boolean saveProject() throws FileSelectionException {
         if (controller.isInitialSave()) {
+            if (getSaveLocation() == null) {
+                return false;
+            }
             controller.saveProject(getSaveLocation());
         }
         else {
             controller.saveProject();
             project.updateProjectTitle();
         }
+        return true;
     }
 
     /**
      * Save the project and have the user specify a save location
+     * 
+     * @return - True if a file was chosen, false if the save process was canceled
      */
-    public void saveProjectAs() {
+    public boolean saveProjectAs() throws FileSelectionException{
         controller.saveProject(getSaveLocation());
         project.updateProjectTitle();
+        return true;
     }
 
     /**
@@ -684,9 +694,9 @@ public class MainView implements ViewInterface {
     /**
      * Gets the file that the user would like to save by prompting them with a JFileChooser
      *
-     * @return - the file the user would like to save
+     * @return - the file the user would like to save, null if the save process was canceled
      */
-    private File getSaveLocation() {
+    private File getSaveLocation() throws FileSelectionException {
         //In response to a button click in the dialog
         int returnVal = fileChooser.showSaveDialog(getCurrentWindow());
 
@@ -700,9 +710,10 @@ public class MainView implements ViewInterface {
             System.out.println(file.getAbsolutePath());
             projectTitle = file.getName();
             return file;
-        }
-        else {
+        } else if (returnVal == JFileChooser.CANCEL_OPTION) {
             return null;
+        } else { // JFileChooser.ERROR_OPTION
+            throw new FileSelectionException("Failed to select file.");
         }
     }
 
