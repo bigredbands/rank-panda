@@ -57,7 +57,9 @@ public class PDFGenerator {
         int pageNumber = 1; // page number
         int moveNumber = 0; // move number
         int begMeasure = 0; // beginning measure of move
-        int endMeasure = 0; // ending measure of move
+        int currentMeasure = 0; // the measure that is currently being counted
+        int currentCountsPerMeasure = 4; // functions as the time signature
+        int extraCounts = 0; // any extra counts from calculating the end measure to be carried on to the next move
 
         // iterating through each move in the drill
         for (Move move : drillInfo.getMoves()) {
@@ -123,17 +125,21 @@ public class PDFGenerator {
                     pageHeight - bufferTop);
             // we have a map of measure number to count per measure
             // currently assumes 4 counts per measure
-            // TODO: Make measures adjust with changes in count per measure
-            begMeasure = endMeasure;
-            endMeasure = begMeasure + move.getCounts() / 4;
-            if (begMeasure != endMeasure) {
-                contentStream.showText("Measures:  " + (begMeasure + 1)
-                        + " - " + endMeasure);
-            } else {
-                contentStream.showText("Measures:  " + begMeasure + " - "
-                        + endMeasure);
+            int totalCounts = extraCounts;
+            while (move.getCounts() > totalCounts){
+                currentCountsPerMeasure = drillInfo.getCountsHashMap().getOrDefault(currentMeasure + 1, currentCountsPerMeasure);
+                totalCounts += currentCountsPerMeasure;
+                currentMeasure ++;
             }
+            contentStream.showText("Measures:  " + begMeasure + " - " + currentMeasure);
             contentStream.endText();
+            if (totalCounts > move.getCounts()) {
+                begMeasure = currentMeasure;
+                extraCounts = totalCounts - move.getCounts();
+            } else {
+                extraCounts = 0;
+                begMeasure = currentMeasure + 1;
+            }
 
             // print Drill Name
             contentStream.beginText();
