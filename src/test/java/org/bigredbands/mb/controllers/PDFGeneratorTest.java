@@ -1,6 +1,5 @@
 package org.bigredbands.mb.controllers;
 
-import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,8 +7,6 @@ import java.util.HashMap;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.pdfbox.exceptions.COSVisitorException;
-import org.bigredbands.mb.controllers.PDFGenerator;
 import org.bigredbands.mb.exceptions.DrillXMLException;
 import org.bigredbands.mb.models.CommandPair;
 import org.bigredbands.mb.models.DrillInfo;
@@ -19,7 +16,6 @@ import org.bigredbands.mb.models.RankPosition;
 import org.junit.Test;
 import org.junit.BeforeClass;
 import org.xml.sax.SAXException;
-import org.bigredbands.mb.views.PdfImage;
 
 public class PDFGeneratorTest {
 
@@ -33,7 +29,7 @@ public class PDFGeneratorTest {
 
     @Test
     public void testCreateBlankPDF() throws ParserConfigurationException,
-            SAXException, IOException, DrillXMLException, COSVisitorException {
+            SAXException, IOException, DrillXMLException {
         // create the expected DrillInfo
         DrillInfo expectedDrillInfo = new DrillInfo();
 
@@ -173,7 +169,7 @@ public class PDFGeneratorTest {
 
     private void testPDFGenerator(DrillInfo expectedDrillInfo, File outputFile)
             throws ParserConfigurationException, SAXException, IOException,
-            DrillXMLException, COSVisitorException {
+            DrillXMLException {
         // generate the pdf
         PDFGenerator generator = new PDFGenerator();
         generator.createPDF(expectedDrillInfo, outputFile);

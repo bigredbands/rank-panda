@@ -2,10 +2,7 @@ package org.bigredbands.mb.controllers;
 
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.image.BufferedImage;
-import java.awt.image.Raster;
-import java.awt.image.SampleModel;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,22 +11,19 @@ import java.util.Map.Entry;
 
 import javax.swing.JPanel;
 
-import org.apache.pdfbox.exceptions.COSVisitorException;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
-import org.apache.pdfbox.pdmodel.edit.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.PDPageContentStream;
 import org.apache.pdfbox.pdmodel.font.PDFont;
 import org.apache.pdfbox.pdmodel.font.PDType1Font;
-import org.apache.pdfbox.pdmodel.graphics.xobject.PDJpeg;
+import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+import org.apache.pdfbox.util.Matrix;
 import org.bigredbands.mb.models.CommandPair;
 import org.bigredbands.mb.models.DrillInfo;
 import org.bigredbands.mb.models.Move;
-import org.bigredbands.mb.models.RankPosition;
 import org.bigredbands.mb.views.PdfImage;
-import org.bigredbands.mb.views.ProjectView;
-import org.bigredbands.mb.views.Wizard;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
-import org.apache.pdfbox.pdmodel.documentinterchange.taggedpdf.PDLayoutAttributeObject;
 
 
 /**
@@ -54,10 +48,8 @@ public class PDFGenerator {
      * @param file
      *            - file to which the PDF will be saved
      * @throws IOException
-     * @throws COSVisitorException
      */
-    public void createPDF(DrillInfo drillInfo, File file) throws IOException,
-            COSVisitorException {
+    public void createPDF(DrillInfo drillInfo, File file) throws IOException {
 
         // Create a new empty document
         PDDocument document = new PDDocument();
@@ -99,16 +91,17 @@ public class PDFGenerator {
             BufferedImage bi = createImage(image);
 
             // add image to PDF
-            PDJpeg img = new PDJpeg(document, bi);
+            PDImageXObject img = LosslessFactory.createFromImage(document, bi);
 
             // Initialize ContentStream to add content to PDF page
             PDPageContentStream contentStream = new PDPageContentStream(
-                    document, blankPage, false, false);
+                document, blankPage, PDPageContentStream.AppendMode.OVERWRITE,
+                false);
 
             // add the rotation using the current transformation matrix
             // including a translation of pageWidth to use the lower left corner
             // as 0,0 reference; properly orients text and image
-            contentStream.concatenate2CTM(0, 1, -1, 0, pageHeight, 0);
+            contentStream.transform(new Matrix(0, 1, -1, 0, pageHeight, 0));
 
             int imageX = 60; // x coordinate of image on document
 
@@ -126,7 +119,7 @@ public class PDFGenerator {
                                     // page
 
             // print Measures
-            contentStream.moveTextPositionByAmount((pageWidth / 2) - 47,
+            contentStream.newLineAtOffset((pageWidth / 2) - 47,
                     pageHeight - bufferTop);
             // we have a map of measure number to count per measure
             // currently assumes 4 counts per measure
@@ -134,26 +127,25 @@ public class PDFGenerator {
             begMeasure = endMeasure;
             endMeasure = begMeasure + move.getCounts() / 4;
             if (begMeasure != endMeasure) {
-                contentStream.drawString("Measures:  " + (begMeasure + 1)
+                contentStream.showText("Measures:  " + (begMeasure + 1)
                         + " - " + endMeasure);
             } else {
-                contentStream.drawString("Measures:  " + begMeasure + " - "
+                contentStream.showText("Measures:  " + begMeasure + " - "
                         + endMeasure);
             }
             contentStream.endText();
 
             // print Drill Name
             contentStream.beginText();
-            contentStream.moveTextPositionByAmount(imageX + 55, pageHeight
-                    - bufferTop);
-            contentStream.drawString(drillInfo.getSongName());
+            contentStream.newLineAtOffset(imageX + 55, pageHeight - bufferTop);
+            contentStream.showText(drillInfo.getSongName());
             contentStream.endText();
 
             // Print Move
             contentStream.beginText();
-            contentStream.moveTextPositionByAmount(pageWidth / 2 + 150,
+            contentStream.newLineAtOffset(pageWidth / 2 + 150,
                     pageHeight - bufferTop);
-            contentStream.drawString("Move " + moveNumber);
+            contentStream.showText("Move " + moveNumber);
             contentStream.endText();
 
             // print instructions for ranks
@@ -200,15 +192,14 @@ public class PDFGenerator {
                 if (move.getComments().length() > 0) {
                     contentStream.setFont(pdfFont, 12);
                     contentStream.beginText();
-                    contentStream.moveTextPositionByAmount(imageX + 55, pageHeight - 385);
-                    contentStream.drawString("Comments:  " + move.getComments());
+                    contentStream.newLineAtOffset(imageX + 55, pageHeight - 385);
+                    contentStream.showText("Comments:  " + move.getComments());
                     contentStream.endText();
                     contentStream.setFont(pdfFont, 10);
                 }
 
                 contentStream.beginText();
-                contentStream.moveTextPositionByAmount(imageX + 55,
-                        pageHeight - 410);
+                contentStream.newLineAtOffset(imageX + 55, pageHeight - 410);
 
                 int columnCount = 0; // tracks number of columns used
 
@@ -252,14 +243,14 @@ public class PDFGenerator {
                     if (addLines == 0) {
 
                         if (columnCount % 3 == 0) {
-                            contentStream.drawString(instructions2);
-                            contentStream.moveTextPositionByAmount(190, 0);
+                            contentStream.showText(instructions2);
+                            contentStream.newLineAtOffset(190, 0);
                         } else if (columnCount % 3 == 1) {
-                            contentStream.drawString(instructions2);
-                            contentStream.moveTextPositionByAmount(190, 0);
+                            contentStream.showText(instructions2);
+                            contentStream.newLineAtOffset(190, 0);
                         } else if (columnCount % 3 == 2) {
-                            contentStream.drawString(instructions2);
-                            contentStream.moveTextPositionByAmount(-380, -30);
+                            contentStream.showText(instructions2);
+                            contentStream.newLineAtOffset(-380, -30);
                         }
                         columnCount++;
                     } else {
@@ -301,14 +292,14 @@ public class PDFGenerator {
 
                         if (divInstSize == 1) {
                             if (columnCount % 3 == 0) {
-                                contentStream.drawString(instructions2);
-                                contentStream.moveTextPositionByAmount(190, 0);
+                                contentStream.showText(instructions2);
+                                contentStream.newLineAtOffset(190, 0);
                             } else if (columnCount % 3 == 1) {
-                                contentStream.drawString(instructions2);
-                                contentStream.moveTextPositionByAmount(190, 0);
+                                contentStream.showText(instructions2);
+                                contentStream.newLineAtOffset(190, 0);
                             } else if (columnCount % 3 == 2) {
-                                contentStream.drawString(instructions2);
-                                contentStream.moveTextPositionByAmount(-380,
+                                contentStream.showText(instructions2);
+                                contentStream.newLineAtOffset(-380,
                                         -15 + addLines * (-15));
                             }
                             columnCount++;
@@ -318,39 +309,39 @@ public class PDFGenerator {
                             if (columnCount % 3 == 0) {
                                 for (String s : divInstructions) {
                                     if (numLeft > 0) {
-                                        contentStream.drawString(s);
-                                        contentStream.moveTextPositionByAmount(
+                                        contentStream.showText(s);
+                                        contentStream.newLineAtOffset(
                                                 0, -15);
                                         numLeft--;
                                     }
                                 }
-                                contentStream.moveTextPositionByAmount(190,
+                                contentStream.newLineAtOffset(190,
                                         (divInstSize) * 15);
                             }
 
                             else if (columnCount % 3 == 1) {
                                 for (String s : divInstructions) {
                                     if (numLeft > 0) {
-                                        contentStream.drawString(s);
-                                        contentStream.moveTextPositionByAmount(
+                                        contentStream.showText(s);
+                                        contentStream.newLineAtOffset(
                                                 0, -15);
                                         numLeft--;
                                     }
                                 }
-                                contentStream.moveTextPositionByAmount(190,
+                                contentStream.newLineAtOffset(190,
                                         (divInstSize) * 15);
                             }
 
                             else if (columnCount % 3 == 2) {
                                 for (String s : divInstructions) {
                                     if (numLeft > 0) {
-                                        contentStream.drawString(s);
-                                        contentStream.moveTextPositionByAmount(
+                                        contentStream.showText(s);
+                                        contentStream.newLineAtOffset(
                                                 0, -15);
                                         numLeft--;
                                     }
                                 }
-                                contentStream.moveTextPositionByAmount(-380,
+                                contentStream.newLineAtOffset(-380,
                                         (addLines - 1) * (-15));
                             }
                             columnCount++;
@@ -365,9 +356,9 @@ public class PDFGenerator {
             // print page number
             /*if (moveNumber >= 0) {
                 contentStream.beginText();
-                contentStream.moveTextPositionByAmount((pageWidth / 2) - 15,
+                contentStream.newLineAtOffset((pageWidth / 2) - 15,
                         bufferBottom - 20);
-                contentStream.drawString("Page " + pageNumber);
+                contentStream.showText("Page " + pageNumber);
                 contentStream.endText();
             }*/
 
