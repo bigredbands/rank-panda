@@ -115,7 +115,7 @@ public class ProjectView {
      * @param main - the main view which will handle common functions with other views
      * @param controller - the controller which will handle accessing and updating the models
      */
-    public ProjectView(MainView main, final ControllerInterface controller) {
+    public ProjectView(MainView main, final ControllerInterface controller, boolean showWizard) {
         this.mainView = main;
         this.controller = controller;
         this.thisProjectView = this;
@@ -1141,7 +1141,9 @@ public class ProjectView {
         window.addKeyListener(new HotKey());
 
         // wizard
-        Wizard myWizard = new Wizard(controller);
+        if (showWizard) {
+            new Wizard(controller);
+        }
     }
 
     /**
