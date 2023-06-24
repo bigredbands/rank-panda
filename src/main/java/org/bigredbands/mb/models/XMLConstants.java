@@ -32,6 +32,7 @@ public abstract class XMLConstants {
     public static String COMMAND_NAME = "command-name";
 
     //tags associated with song-constants
+    public static String SONG_NAME = "song-name";
     public static String MEASURE_NUMBER = "measure-number";
     public static String TEMPO = "tempo";
     public static String TEMPO_CHANGE  = "tempo-change";

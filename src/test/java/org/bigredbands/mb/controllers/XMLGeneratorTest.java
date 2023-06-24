@@ -278,6 +278,16 @@ DrillInfo expectedDrillInfo = new DrillInfo();
         testGeneratorAndParser(expectedDrillInfo, new File(outputPath + "10-two-moves-one-rank-song-constants-renamed-command-output.pnd"));
     }
 
+    @Test
+    public void testSongNameChange() throws ParserConfigurationException, SAXException, IOException, DrillXMLException {
+        //create the expected DrillInfo
+        DrillInfo expectedDrillInfo = new DrillInfo();
+        expectedDrillInfo.setSongName("song");
+
+        //test the generator output with the parser
+        testGeneratorAndParser(expectedDrillInfo, new File(outputPath + "12-song-name-change.pnd"));
+    }
+
     private void testGeneratorAndParser(DrillInfo expectedDrillInfo, File outputFile) throws ParserConfigurationException, SAXException, IOException, DrillXMLException {
         //generate the xml
         XMLGenerator generator = new XMLGenerator();

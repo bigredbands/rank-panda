@@ -392,4 +392,21 @@ public class XMLParserTest {
         //test
         Assert.assertEquals(expectedDrillInfo, drillInfo);
     }
+
+    @Test
+    public void testSongNameChange() throws ParserConfigurationException, SAXException, IOException, DrillXMLException {
+        //set the file url
+        File testFile = new File(path + "12-song-name-change.pnd");
+
+        //create the xml parser
+        XMLParser parser = new XMLParser();
+
+        //parse the file
+        DrillInfo drillInfo = parser.load(testFile);
+
+        //test
+        DrillInfo expectedDrillInfo = new DrillInfo();
+        expectedDrillInfo.setSongName("song");
+        Assert.assertEquals(expectedDrillInfo, drillInfo);
+    }
 }

@@ -84,6 +84,15 @@ public class XMLParser {
             addSongConstantToHashMap(drillInfo.getCountsHashMap(), countsPerMeasuresChange.getChildNodes(), XMLConstants.COUNT_PER_MEASURE);
         }
 
+        //create a NodeList of the song-name tags in the document
+        NodeList songNameList = doc.getElementsByTagName(XMLConstants.SONG_NAME);
+
+        //set the song name appropriately
+        if (songNameList.getLength() > 0) {
+            Node songName = songNameList.item(0);
+            drillInfo.setSongName(getTagText(songName));
+        }
+        
         return drillInfo;
     }
 
