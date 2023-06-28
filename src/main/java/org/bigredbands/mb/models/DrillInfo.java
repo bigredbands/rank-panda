@@ -195,6 +195,17 @@ public class DrillInfo {
         //create the drill tag
         Element drillTag = document.createElement(XMLConstants.DRILL);
 
+        if (songName.length() != 0) {
+            //add the song name
+            //create the song name element
+            Element songTag = document.createElement(XMLConstants.SONG_NAME);
+            drillTag.appendChild(songTag);
+
+            //give the song name a value
+            Text songText = document.createTextNode(songName);
+            songTag.appendChild(songText);
+        }
+        
         //add the tempo changes
         Set<Integer> tempoKeys = tempoHashMap.keySet();
         Iterator<Integer> tempoIterator = tempoKeys.iterator();
