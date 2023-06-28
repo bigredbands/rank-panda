@@ -161,7 +161,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
         selectedRanks.clear();
 
         if (!mainView.isProjectViewCreated()) {
-            mainView.createProjectView();
+            mainView.createProjectView(false);
         }
         mainView.updateViewWithMoves(drillInfo.getMoves().size(), currentMove, drillInfo.getMoves().get(currentMove).getCounts());
 
@@ -184,7 +184,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
         selectedRanks.clear();
 
         if (!mainView.isProjectViewCreated()) {
-            mainView.createProjectView();
+            mainView.createProjectView(true);
         }
         mainView.updateViewWithMoves(drillInfo.getMoves().size(), currentMove, drillInfo.getMoves().get(currentMove).getCounts());
     }

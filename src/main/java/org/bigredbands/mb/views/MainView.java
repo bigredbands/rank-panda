@@ -76,9 +76,11 @@ public class MainView implements ViewInterface {
 
     /**
      * Create the project view and display it
+     * 
+     * @param showWizard - whether the Song Constants wizard should be shown when creating the project view
      */
-    public void createProjectView() {
-        project = new ProjectView(this, controller);
+    public void createProjectView(boolean showWizard) {
+        project = new ProjectView(this, controller, showWizard);
     }
 
     /**

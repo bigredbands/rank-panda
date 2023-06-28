@@ -64,8 +64,10 @@ public interface ViewInterface {
 
     /**
      * Creates the project screen and displays it to the user
+     * 
+     * @param showWizard - whether the Song Constants wizard should be shown when creating the project view
      */
-    public void createProjectView();
+    public void createProjectView(boolean showWizard);
 
     /**
      * Checks if the project screen has already been created
