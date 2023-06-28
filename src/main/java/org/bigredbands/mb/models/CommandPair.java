@@ -1,5 +1,7 @@
 package org.bigredbands.mb.models;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
@@ -94,46 +96,35 @@ public class CommandPair {
         this.destination = dest;
     }
 
-    public RankPosition getDest() {
-        return this.destination;
+    public RankPosition getDestination() {
+        return (this.command == DTP) ? this.destination : null;
     }
 
     @Override
     public boolean equals(Object obj) {
-        //basic comparisons
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
+        if (!(obj instanceof CommandPair)) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-
-        //field comparisons
         CommandPair other = (CommandPair) obj;
-        if (command != other.command) {
-            return false;
-        }
-        if (counts != other.counts) {
-            return false;
-        }
 
-        if (name == null) {
-            if (other.name != null) {
-                return false;
-            }
-        }
-        else if (!name.equals(other.name)) {
-            return false;
-        }
+        return new EqualsBuilder()
+            .append(this.command, other.command)
+            .append(this.counts, other.counts)
+            .append(this.name, other.name)
+            // use getDestination() instead of raw value to avoid returning 
+            // a value for non-direct-to-point moves
+            .append(this.getDestination(), other.getDestination())
+            .isEquals();
+    }
 
-        // THIS DOESN'T FUCKING WORK GODDAMNIT
-        /*else if (!destination.equals(other.destination)) {
-            return false;
-        }*/
-        return true;
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder()
+            .append(this.command)
+            .append(this.counts)
+            .append(this.name)
+            .append(this.getDestination())
+            .hashCode();
     }
 
     public int getCounts() {

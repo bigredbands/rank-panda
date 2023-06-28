@@ -1,8 +1,9 @@
 package org.bigredbands.mb.models;
 
-import java.awt.geom.Path2D;
 import java.util.ArrayList;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.bigredbands.mb.models.MarchingConstants.PART;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -93,51 +94,27 @@ public class RankPosition {
 
     @Override
     public boolean equals(Object obj) {
-        //general comparisons
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
+        if (!(obj instanceof RankPosition)) {
             return false;
         }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-
-        //field specific comparisons
         RankPosition other = (RankPosition) obj;
-        if (end == null) {
-            if (other.end != null) {
-                return false;
-            }
-        }
-        else if (!end.equals(other.end)) {
-            return false;
-        }
 
-        if (front == null) {
-            if (other.front != null) {
-                return false;
-            }
-        }
-        else if (!front.equals(other.front)) {
-            return false;
-        }
+        return new EqualsBuilder()
+            .append(this.lineType, other.lineType)
+            .append(this.front, other.front)
+            .append(this.midpoint, other.midpoint)
+            .append(this.end, other.end)
+            .isEquals();
+    }
 
-        if (lineType != other.lineType) {
-            return false;
-        }
-
-        if (midpoint == null) {
-            if (other.midpoint != null) {
-                return false;
-            }
-        }
-        else if (!midpoint.equals(other.midpoint)) {
-            return false;
-        }
-
-        return true;
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder()
+            .append(this.lineType)
+            .append(this.front)
+            .append(this.midpoint)
+            .append(this.end)
+            .hashCode();
     }
 
     public Element convertToXML(Document document, String positionName) {

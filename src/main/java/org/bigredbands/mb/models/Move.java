@@ -295,12 +295,12 @@ public class Move {
 
             //only do a portion of the command
             if (countsLeft < 0) {
-                movePortionCounts(command.getCommand(), position, counts, command.getCounts(), command.getDest());
+                movePortionCounts(command.getCommand(), position, counts, command.getCounts(), command.getDestination());
             }
             //else do full command (as part of the chain that leads up to the current one
             else {
                 //moveFullCounts(command, position);
-                movePortionCounts(command.getCommand(), position, command.getCounts(), command.getCounts(), command.getDest());
+                movePortionCounts(command.getCommand(), position, command.getCounts(), command.getCounts(), command.getDestination());
             }
             counts = counts - command.getCounts();
 
@@ -315,7 +315,7 @@ public class Move {
         for (int i = 0; i < commands.get(rankName).size(); i++) {
             int numcounts = commands.get(rankName).get(i).getCounts();
             CommandPair cmd = commands.get(rankName).get(i);
-            movePortionCounts(commands.get(rankName).get(i).getCommand(), endPosition, numcounts, numcounts,cmd.getDest());
+            movePortionCounts(commands.get(rankName).get(i).getCommand(), endPosition, numcounts, numcounts,cmd.getDestination());
         }
         return endPosition;
     }
