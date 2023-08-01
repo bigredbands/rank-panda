@@ -23,6 +23,7 @@ import org.bigredbands.mb.models.CommandPair;
 import org.bigredbands.mb.models.DrillInfo;
 import org.bigredbands.mb.models.Field;
 import org.bigredbands.mb.models.Move;
+import org.bigredbands.mb.utils.PDFStringUtils;
 import org.bigredbands.mb.views.PdfImage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
 
@@ -92,11 +93,13 @@ public class PDFGenerator {
 
         float drillWidth = pageWidth - 2 * pageMarginX;
         float drillHeight = drillWidth / (field.TotalLength / field.Height);
+        float textMarginX = pageMarginX + (field.EndzoneWidth / field.TotalLength) * drillWidth;
 
         // Fonts
         PDFont pdfFont = PDType1Font.HELVETICA;
         float commentFontSize = 12.0f;
         float fontSize = 10.0f;
+        float lineSpacing = 1.5f;
 
         // Drill image dimensions
         // Units are in pixels
@@ -122,16 +125,11 @@ public class PDFGenerator {
             PDPageContentStream contentStream = addNewPage(document, pageSize);
             contentStream.setFont(pdfFont, fontSize);
 
-            // adding text to page
-            contentStream.beginText();
+            // Get the header text
+            String drillTitle, measureText, moveLabel;
 
-            int bufferTop = 50; // text offset from top of page
-            int bufferBottom = 50; // page number text offset from bottom of
-                                    // page
+            drillTitle = drillInfo.getSongName();
 
-            // print Measures
-            contentStream.newLineAtOffset((pageWidth / 2) - 47,
-                    pageHeight - bufferTop);
             // we have a map of measure number to count per measure
             // currently assumes 4 counts per measure
             int totalCounts = extraCounts;
@@ -140,8 +138,9 @@ public class PDFGenerator {
                 totalCounts += currentCountsPerMeasure;
                 currentMeasure ++;
             }
-            contentStream.showText("Measures:  " + begMeasure + " - " + currentMeasure);
-            contentStream.endText();
+
+            measureText = "Measures:  " + begMeasure + " - " + currentMeasure;
+
             if (totalCounts > move.getCounts()) {
                 begMeasure = currentMeasure;
                 extraCounts = totalCounts - move.getCounts();
@@ -150,18 +149,29 @@ public class PDFGenerator {
                 begMeasure = currentMeasure + 1;
             }
 
-            // print Drill Name
+            moveLabel = "Move " + moveNumber;
+
+            // Print the header
+            float yPosition = pageHeight - pageMarginY;
             contentStream.beginText();
-            contentStream.newLineAtOffset(pageMarginX + 55, pageHeight - bufferTop);
-            contentStream.showText(drillInfo.getSongName());
+            contentStream.newLineAtOffset(textMarginX, yPosition - fontSize);
+
+            // Print drill title
+            contentStream.showText(drillTitle);
+
+            // Print measures
+            float measureTextWidth = PDFStringUtils.stringWidth(measureText, pdfFont, fontSize);
+            contentStream.newLineAtOffset((pageWidth - measureTextWidth) / 2 - textMarginX, 0);
+            contentStream.showText(measureText);
+
+            // Print move label
+            float moveLabelWidth = PDFStringUtils.stringWidth(moveLabel, pdfFont, fontSize);
+            contentStream.newLineAtOffset((measureTextWidth + pageWidth) / 2 - textMarginX - moveLabelWidth, 0);
+            contentStream.showText(moveLabel);
             contentStream.endText();
 
-            // Print Move
-            contentStream.beginText();
-            contentStream.newLineAtOffset(pageWidth / 2 + 150,
-                    pageHeight - bufferTop);
-            contentStream.showText("Move " + moveNumber);
-            contentStream.endText();
+            // Move the current y position past the header
+            yPosition -= lineSpacing * fontSize;
 
             // add image to PDF
             PdfImage image = new PdfImage(ftToPx * 3.0f, dim, move.getEndPositions());
@@ -217,14 +227,14 @@ public class PDFGenerator {
                 if (move.getComments().length() > 0) {
                     contentStream.setFont(pdfFont, commentFontSize);
                     contentStream.beginText();
-                    contentStream.newLineAtOffset(pageMarginX + 55, pageHeight - 385);
+                    contentStream.newLineAtOffset(textMarginX, pageHeight - 385);
                     contentStream.showText("Comments:  " + move.getComments());
                     contentStream.endText();
                     contentStream.setFont(pdfFont, fontSize);
                 }
 
                 contentStream.beginText();
-                contentStream.newLineAtOffset(pageMarginX + 55, pageHeight - 410);
+                contentStream.newLineAtOffset(textMarginX, pageHeight - 410);
 
                 int columnCount = 0; // tracks number of columns used
 
