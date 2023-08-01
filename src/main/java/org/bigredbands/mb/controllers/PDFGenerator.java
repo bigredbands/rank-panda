@@ -21,6 +21,7 @@ import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.util.Matrix;
 import org.bigredbands.mb.models.CommandPair;
 import org.bigredbands.mb.models.DrillInfo;
+import org.bigredbands.mb.models.Field;
 import org.bigredbands.mb.models.Move;
 import org.bigredbands.mb.views.PdfImage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
@@ -76,17 +77,35 @@ public class PDFGenerator {
         // Create a new empty document
         PDDocument document = new PDDocument();
 
+        // Field dimensions
+        // Units are in feet
+        Field field = Field.CollegeFootball; // TODO: allow setting this dynamically
+
         // Page dimensions
         // Units are in 1/72 of an inch ("user-space units")
         PDRectangle pageSize = PDRectangle.LETTER;
         float pageHeight = pageSize.getWidth(); // height of page
                                                 // (landscape)
         float pageWidth = pageSize.getHeight(); // width of page (landscape)
+        float pageMarginX = 0.75f * 72f; // 3/4" margin X (72 units/inch)
+        float pageMarginY = 0.5f * 72f; // 1/2" margin Y (72 units/inch)
+
+        float drillWidth = pageWidth - 2 * pageMarginX;
+        float drillHeight = drillWidth / (field.TotalLength / field.Height);
 
         // Fonts
         PDFont pdfFont = PDType1Font.HELVETICA;
         float commentFontSize = 12.0f;
         float fontSize = 10.0f;
+
+        // Drill image dimensions
+        // Units are in pixels
+        float imageWidth = drillWidth;
+        float imageHeight = drillHeight;
+        Dimension dim = new Dimension((int) imageWidth, (int) imageHeight);
+
+        // Conversion factor
+        float ftToPx = imageWidth / field.TotalLength;
 
         // Initialize iterated variables
         int pageNumber = 1; // page number
@@ -102,8 +121,6 @@ public class PDFGenerator {
             // Create the first page of the move
             PDPageContentStream contentStream = addNewPage(document, pageSize);
             contentStream.setFont(pdfFont, fontSize);
-
-            int imageX = 60; // x coordinate of image on document
 
             // adding text to page
             contentStream.beginText();
@@ -135,7 +152,7 @@ public class PDFGenerator {
 
             // print Drill Name
             contentStream.beginText();
-            contentStream.newLineAtOffset(imageX + 55, pageHeight - bufferTop);
+            contentStream.newLineAtOffset(pageMarginX + 55, pageHeight - bufferTop);
             contentStream.showText(drillInfo.getSongName());
             contentStream.endText();
 
@@ -146,23 +163,15 @@ public class PDFGenerator {
             contentStream.showText("Move " + moveNumber);
             contentStream.endText();
 
-            // creating image on page, calls createImage on JPanel
-            // ratio 120 by 53.3
-            Dimension dim = new Dimension((int) 666.667, 296);
-
-            // width in pixels / yards, conversion from yards to pixels
-            float scalefactor = (float) (666.667 / 120.0);
-
-            PdfImage image = new PdfImage(scalefactor, dim,
-                    move.getEndPositions());
+            // add image to PDF
+            PdfImage image = new PdfImage(ftToPx * 3.0f, dim, move.getEndPositions());
             image.setPreferredSize(dim);
             image.setSize(dim);
             BufferedImage bi = createImage(image);
-
-            // add image to PDF
             PDImageXObject img = LosslessFactory.createFromImage(document, bi);
-
-            contentStream.drawImage(img, imageX, pageHeight - 360);
+            contentStream.drawImage(img,
+                pageMarginX, pageHeight - 360,
+                drillWidth, drillHeight);
 
             // print instructions for ranks
             // if rank commands are the same of a prior rank add that rank to
@@ -208,14 +217,14 @@ public class PDFGenerator {
                 if (move.getComments().length() > 0) {
                     contentStream.setFont(pdfFont, commentFontSize);
                     contentStream.beginText();
-                    contentStream.newLineAtOffset(imageX + 55, pageHeight - 385);
+                    contentStream.newLineAtOffset(pageMarginX + 55, pageHeight - 385);
                     contentStream.showText("Comments:  " + move.getComments());
                     contentStream.endText();
                     contentStream.setFont(pdfFont, fontSize);
                 }
 
                 contentStream.beginText();
-                contentStream.newLineAtOffset(imageX + 55, pageHeight - 410);
+                contentStream.newLineAtOffset(pageMarginX + 55, pageHeight - 410);
 
                 int columnCount = 0; // tracks number of columns used
 
@@ -402,9 +411,7 @@ public class PDFGenerator {
      */
     public BufferedImage createImage(JPanel panel) {
 
-        int w = panel.getWidth() - 54;
-        int h = panel.getHeight();
-        BufferedImage bi = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+        BufferedImage bi = new BufferedImage(panel.getWidth(), panel.getHeight(), BufferedImage.TYPE_INT_RGB);
         Graphics2D g = bi.createGraphics();
         panel.paint(g);
         return bi;
