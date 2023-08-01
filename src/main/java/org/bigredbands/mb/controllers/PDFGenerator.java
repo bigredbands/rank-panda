@@ -39,6 +39,28 @@ public class PDFGenerator {
     public PDFGenerator() {
     }
 
+    private PDPageContentStream addNewPage(PDDocument document, PDRectangle mediaBox) throws IOException {
+        // Create a new blank page and add it to the document
+        PDPage blankPage = new PDPage(mediaBox);
+
+        // Rotate page for landscape mode
+        blankPage.setRotation(90);
+
+        // add page to the document
+        document.addPage(blankPage);
+
+        // Initialize ContentStream to add content to PDF page
+        PDPageContentStream contentStream = new PDPageContentStream(
+            document, blankPage, PDPageContentStream.AppendMode.OVERWRITE,
+            false);
+
+        // add the rotation using the current transformation matrix including a
+        // translation of media box width to use the lower left corner as 0,0
+        // reference; properly orients text and image
+        contentStream.transform(new Matrix(0, 1, -1, 0, mediaBox.getWidth(), 0));
+        return contentStream;
+    }
+
     /**
      * Used to generate the pdf files
      *
@@ -54,6 +76,19 @@ public class PDFGenerator {
         // Create a new empty document
         PDDocument document = new PDDocument();
 
+        // Page dimensions
+        // Units are in 1/72 of an inch ("user-space units")
+        PDRectangle pageSize = PDRectangle.LETTER;
+        float pageHeight = pageSize.getWidth(); // height of page
+                                                // (landscape)
+        float pageWidth = pageSize.getHeight(); // width of page (landscape)
+
+        // Fonts
+        PDFont pdfFont = PDType1Font.HELVETICA;
+        float commentFontSize = 12.0f;
+        float fontSize = 10.0f;
+
+        // Initialize iterated variables
         int pageNumber = 1; // page number
         int moveNumber = 0; // move number
         int begMeasure = 0; // beginning measure of move
@@ -64,20 +99,9 @@ public class PDFGenerator {
         // iterating through each move in the drill
         for (Move move : drillInfo.getMoves()) {
 
-            // Create a new blank page and add it to the document
-            PDPage blankPage = new PDPage();
-
-            // rotates page for landscape mode
-            blankPage.setRotation(90);
-
-            // add page to the document
-            document.addPage(blankPage);
-
-            PDRectangle pageSize = blankPage.getMediaBox();
-
-            float pageHeight = pageSize.getWidth(); // height of page
-                                                    // (landscape)
-            float pageWidth = pageSize.getHeight(); // width of page (landscape)
+            // Create the first page of the move
+            PDPageContentStream contentStream = addNewPage(document, pageSize);
+            contentStream.setFont(pdfFont, fontSize);
 
             // creating image on page, calls createImage on JPanel
             // ratio 120 by 53.3
@@ -95,26 +119,12 @@ public class PDFGenerator {
             // add image to PDF
             PDImageXObject img = LosslessFactory.createFromImage(document, bi);
 
-            // Initialize ContentStream to add content to PDF page
-            PDPageContentStream contentStream = new PDPageContentStream(
-                document, blankPage, PDPageContentStream.AppendMode.OVERWRITE,
-                false);
-
-            // add the rotation using the current transformation matrix
-            // including a translation of pageWidth to use the lower left corner
-            // as 0,0 reference; properly orients text and image
-            contentStream.transform(new Matrix(0, 1, -1, 0, pageHeight, 0));
-
             int imageX = 60; // x coordinate of image on document
 
             contentStream.drawImage(img, imageX, pageHeight - 360);
 
             // adding text to page
             contentStream.beginText();
-
-            // setting font
-            PDFont pdfFont = PDType1Font.HELVETICA;
-            contentStream.setFont(pdfFont, 10);
 
             int bufferTop = 50; // text offset from top of page
             int bufferBottom = 50; // page number text offset from bottom of
@@ -196,12 +206,12 @@ public class PDFGenerator {
 
                 // print move's comments
                 if (move.getComments().length() > 0) {
-                    contentStream.setFont(pdfFont, 12);
+                    contentStream.setFont(pdfFont, commentFontSize);
                     contentStream.beginText();
                     contentStream.newLineAtOffset(imageX + 55, pageHeight - 385);
                     contentStream.showText("Comments:  " + move.getComments());
                     contentStream.endText();
-                    contentStream.setFont(pdfFont, 10);
+                    contentStream.setFont(pdfFont, fontSize);
                 }
 
                 contentStream.beginText();
