@@ -229,10 +229,15 @@ public class PDFGenerator {
                 if (move.getComments().length() > 0) {
                     contentStream.setFont(pdfFont, commentFontSize);
                     contentStream.beginText();
-                    contentStream.newLineAtOffset(textMarginX, pageHeight - 385);
+                    contentStream.newLineAtOffset(textMarginX, yPosition - commentFontSize);
                     contentStream.showText("Comments:  " + move.getComments());
                     contentStream.endText();
+
+                    // Reset to original font size
                     contentStream.setFont(pdfFont, fontSize);
+
+                    // Offset for the comment space
+                    yPosition -= lineSpacing * commentFontSize;
                 }
 
                 contentStream.beginText();
