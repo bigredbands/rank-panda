@@ -103,25 +103,7 @@ public class PDFGenerator {
             PDPageContentStream contentStream = addNewPage(document, pageSize);
             contentStream.setFont(pdfFont, fontSize);
 
-            // creating image on page, calls createImage on JPanel
-            // ratio 120 by 53.3
-            Dimension dim = new Dimension((int) 666.667, 296);
-
-            // width in pixels / yards, conversion from yards to pixels
-            float scalefactor = (float) (666.667 / 120.0);
-
-            PdfImage image = new PdfImage(scalefactor, dim,
-                    move.getEndPositions());
-            image.setPreferredSize(dim);
-            image.setSize(dim);
-            BufferedImage bi = createImage(image);
-
-            // add image to PDF
-            PDImageXObject img = LosslessFactory.createFromImage(document, bi);
-
             int imageX = 60; // x coordinate of image on document
-
-            contentStream.drawImage(img, imageX, pageHeight - 360);
 
             // adding text to page
             contentStream.beginText();
@@ -163,6 +145,24 @@ public class PDFGenerator {
                     pageHeight - bufferTop);
             contentStream.showText("Move " + moveNumber);
             contentStream.endText();
+
+            // creating image on page, calls createImage on JPanel
+            // ratio 120 by 53.3
+            Dimension dim = new Dimension((int) 666.667, 296);
+
+            // width in pixels / yards, conversion from yards to pixels
+            float scalefactor = (float) (666.667 / 120.0);
+
+            PdfImage image = new PdfImage(scalefactor, dim,
+                    move.getEndPositions());
+            image.setPreferredSize(dim);
+            image.setSize(dim);
+            BufferedImage bi = createImage(image);
+
+            // add image to PDF
+            PDImageXObject img = LosslessFactory.createFromImage(document, bi);
+
+            contentStream.drawImage(img, imageX, pageHeight - 360);
 
             // print instructions for ranks
             // if rank commands are the same of a prior rank add that rank to
