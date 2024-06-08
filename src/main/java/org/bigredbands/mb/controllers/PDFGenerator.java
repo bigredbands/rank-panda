@@ -179,9 +179,11 @@ public class PDFGenerator {
             image.setSize(dim);
             BufferedImage bi = createImage(image);
             PDImageXObject img = LosslessFactory.createFromImage(document, bi);
+
             contentStream.drawImage(img,
-                pageMarginX, pageHeight - 360,
+                pageMarginX, yPosition - drillHeight,
                 drillWidth, drillHeight);
+            yPosition -= drillHeight;
 
             // print instructions for ranks
             // if rank commands are the same of a prior rank add that rank to
