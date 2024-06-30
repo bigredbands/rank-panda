@@ -3,6 +3,7 @@ package org.bigredbands.mb.views;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Shape;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,8 +31,10 @@ public class PdfImage extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g.setColor(Color.WHITE);
-        g.fillRect(0, 0, (int) (FootballField.FIELD_LENGTH * scaleFactor)+100, (int) (FootballField.FIELD_HEIGHT * scaleFactor));
+
+        Graphics2D g2d = (Graphics2D)g;
+        g2d.setColor(Color.WHITE);
+        g2d.fill(g2d.getClipBounds());
 
         g.setColor(Color.BLACK);
         FootballField.drawFieldLines(g, containingDimension, 0, 0, 0);

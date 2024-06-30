@@ -7,3 +7,6 @@ dependency-reduced-pom.xml
 /.settings/
 /.classpath
 /.project
+
+# OS-specific files
+.DS_Store

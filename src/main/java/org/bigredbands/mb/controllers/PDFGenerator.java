@@ -6,8 +6,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map.Entry;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.swing.JPanel;
 
@@ -19,12 +21,13 @@ import org.apache.pdfbox.pdmodel.font.PDType1Font;
 import org.apache.pdfbox.pdmodel.graphics.image.LosslessFactory;
 import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.util.Matrix;
-import org.bigredbands.mb.models.CommandPair;
+import org.bigredbands.mb.models.ConsolidatedDrillInstruction;
 import org.bigredbands.mb.models.DrillInfo;
+import org.bigredbands.mb.models.Field;
 import org.bigredbands.mb.models.Move;
+import org.bigredbands.mb.utils.PDFStringUtils;
 import org.bigredbands.mb.views.PdfImage;
 import org.apache.pdfbox.pdmodel.common.PDRectangle;
-
 
 /**
  *
@@ -37,6 +40,39 @@ public class PDFGenerator {
      * Default constructor
      */
     public PDFGenerator() {
+    }
+
+    private PDPageContentStream addNewPage(PDDocument document, PDRectangle mediaBox,
+            int pageNumber, float margin, PDFont font, float fontSize) throws IOException {
+        // Create a new blank page and add it to the document
+        PDPage blankPage = new PDPage(mediaBox);
+
+        // Rotate page for landscape mode
+        blankPage.setRotation(90);
+
+        // add page to the document
+        document.addPage(blankPage);
+
+        // Initialize ContentStream to add content to PDF page
+        PDPageContentStream contentStream = new PDPageContentStream(
+            document, blankPage, PDPageContentStream.AppendMode.OVERWRITE,
+            false);
+
+        // add the rotation using the current transformation matrix including a
+        // translation of media box width to use the lower left corner as 0,0
+        // reference; properly orients text and image
+        contentStream.transform(new Matrix(0, 1, -1, 0, mediaBox.getWidth(), 0));
+
+        // Print the page number
+        contentStream.setFont(font, fontSize);
+        String pageNumString = Integer.toString(pageNumber);
+        contentStream.beginText();
+        contentStream.newLineAtOffset((mediaBox.getHeight() - font.getStringWidth(pageNumString) / 1000.0f) / 2,
+                margin);
+        contentStream.showText(pageNumString);
+        contentStream.endText();
+
+        return contentStream;
     }
 
     /**
@@ -54,6 +90,40 @@ public class PDFGenerator {
         // Create a new empty document
         PDDocument document = new PDDocument();
 
+        // Field dimensions
+        // Units are in feet
+        Field field = Field.CollegeFootball; // TODO: allow setting this dynamically
+
+        // Page dimensions
+        // Units are in 1/72 of an inch ("user-space units")
+        PDRectangle pageSize = PDRectangle.LETTER;
+        float pageHeight = pageSize.getWidth(); // height of page
+                                                // (landscape)
+        float pageWidth = pageSize.getHeight(); // width of page (landscape)
+        float pageMarginX = 0.75f * 72f; // 3/4" margin X (72 units/inch)
+        float pageMarginY = 0.5f * 72f; // 1/2" margin Y (72 units/inch)
+
+        float drillWidth = pageWidth - 2 * pageMarginX;
+        float drillHeight = drillWidth / (field.TotalLength / field.Height);
+        float textMarginX = pageMarginX + (field.EndzoneWidth / field.TotalLength) * drillWidth;
+
+        // Fonts
+        PDFont pdfFont = PDType1Font.HELVETICA;
+        PDFont rankFont = PDType1Font.HELVETICA_BOLD;
+        float commentFontSize = 12.0f;
+        float fontSize = 10.0f;
+        float lineSpacing = 1.5f;
+
+        // Drill image dimensions
+        // Units are in pixels
+        float imageWidth = drillWidth;
+        float imageHeight = drillHeight;
+        Dimension dim = new Dimension((int) imageWidth, (int) imageHeight);
+
+        // Conversion factor
+        float ftToPx = imageWidth / field.TotalLength;
+
+        // Initialize iterated variables
         int pageNumber = 1; // page number
         int moveNumber = 0; // move number
         int begMeasure = 0; // beginning measure of move
@@ -64,65 +134,16 @@ public class PDFGenerator {
         // iterating through each move in the drill
         for (Move move : drillInfo.getMoves()) {
 
-            // Create a new blank page and add it to the document
-            PDPage blankPage = new PDPage();
+            // Create the first page of the move
+            PDPageContentStream contentStream = addNewPage(document, pageSize,
+                pageNumber++, pageMarginY, pdfFont, fontSize);
+            contentStream.setFont(pdfFont, fontSize);
 
-            // rotates page for landscape mode
-            blankPage.setRotation(90);
+            // Get the header text
+            String drillTitle, measureText, moveLabel;
 
-            // add page to the document
-            document.addPage(blankPage);
+            drillTitle = drillInfo.getSongName();
 
-            PDRectangle pageSize = blankPage.getMediaBox();
-
-            float pageHeight = pageSize.getWidth(); // height of page
-                                                    // (landscape)
-            float pageWidth = pageSize.getHeight(); // width of page (landscape)
-
-            // creating image on page, calls createImage on JPanel
-            // ratio 120 by 53.3
-            Dimension dim = new Dimension((int) 666.667, 296);
-
-            // width in pixels / yards, conversion from yards to pixels
-            float scalefactor = (float) (666.667 / 120.0);
-
-            PdfImage image = new PdfImage(scalefactor, dim,
-                    move.getEndPositions());
-            image.setPreferredSize(dim);
-            image.setSize(dim);
-            BufferedImage bi = createImage(image);
-
-            // add image to PDF
-            PDImageXObject img = LosslessFactory.createFromImage(document, bi);
-
-            // Initialize ContentStream to add content to PDF page
-            PDPageContentStream contentStream = new PDPageContentStream(
-                document, blankPage, PDPageContentStream.AppendMode.OVERWRITE,
-                false);
-
-            // add the rotation using the current transformation matrix
-            // including a translation of pageWidth to use the lower left corner
-            // as 0,0 reference; properly orients text and image
-            contentStream.transform(new Matrix(0, 1, -1, 0, pageHeight, 0));
-
-            int imageX = 60; // x coordinate of image on document
-
-            contentStream.drawImage(img, imageX, pageHeight - 360);
-
-            // adding text to page
-            contentStream.beginText();
-
-            // setting font
-            PDFont pdfFont = PDType1Font.HELVETICA;
-            contentStream.setFont(pdfFont, 10);
-
-            int bufferTop = 50; // text offset from top of page
-            int bufferBottom = 50; // page number text offset from bottom of
-                                    // page
-
-            // print Measures
-            contentStream.newLineAtOffset((pageWidth / 2) - 47,
-                    pageHeight - bufferTop);
             // we have a map of measure number to count per measure
             // currently assumes 4 counts per measure
             int totalCounts = extraCounts;
@@ -131,8 +152,9 @@ public class PDFGenerator {
                 totalCounts += currentCountsPerMeasure;
                 currentMeasure ++;
             }
-            contentStream.showText("Measures:  " + begMeasure + " - " + currentMeasure);
-            contentStream.endText();
+
+            measureText = "Measures:  " + begMeasure + " - " + currentMeasure;
+
             if (totalCounts > move.getCounts()) {
                 begMeasure = currentMeasure;
                 extraCounts = totalCounts - move.getCounts();
@@ -141,18 +163,41 @@ public class PDFGenerator {
                 begMeasure = currentMeasure + 1;
             }
 
-            // print Drill Name
+            moveLabel = "Move " + moveNumber;
+
+            // Print the header
+            float yPosition = pageHeight - pageMarginY;
             contentStream.beginText();
-            contentStream.newLineAtOffset(imageX + 55, pageHeight - bufferTop);
-            contentStream.showText(drillInfo.getSongName());
+            contentStream.newLineAtOffset(textMarginX, yPosition - fontSize);
+
+            // Print drill title
+            contentStream.showText(drillTitle);
+
+            // Print measures
+            float measureTextWidth = PDFStringUtils.stringWidth(measureText, pdfFont, fontSize);
+            contentStream.newLineAtOffset((pageWidth - measureTextWidth) / 2 - textMarginX, 0);
+            contentStream.showText(measureText);
+
+            // Print move label
+            float moveLabelWidth = PDFStringUtils.stringWidth(moveLabel, pdfFont, fontSize);
+            contentStream.newLineAtOffset((measureTextWidth + pageWidth) / 2 - textMarginX - moveLabelWidth, 0);
+            contentStream.showText(moveLabel);
             contentStream.endText();
 
-            // Print Move
-            contentStream.beginText();
-            contentStream.newLineAtOffset(pageWidth / 2 + 150,
-                    pageHeight - bufferTop);
-            contentStream.showText("Move " + moveNumber);
-            contentStream.endText();
+            // Move the current y position past the header
+            yPosition -= lineSpacing * fontSize;
+
+            // add image to PDF
+            PdfImage image = new PdfImage(ftToPx * 3.0f, dim, move.getEndPositions());
+            image.setPreferredSize(dim);
+            image.setSize(dim);
+            BufferedImage bi = createImage(image);
+            PDImageXObject img = LosslessFactory.createFromImage(document, bi);
+
+            contentStream.drawImage(img,
+                pageMarginX, yPosition - drillHeight,
+                drillWidth, drillHeight);
+            yPosition -= drillHeight;
 
             // print instructions for ranks
             // if rank commands are the same of a prior rank add that rank to
@@ -160,198 +205,108 @@ public class PDFGenerator {
             // otherwise start text in next column or if no more space on the
             // right, next row
             if (moveNumber > 0) {
-                ArrayList<String> rankNames = new ArrayList<String>(); // all rank names
-
-                HashMap<ArrayList<CommandPair>, String> uniqueMoves = new HashMap<ArrayList<CommandPair>, String>();
-
-                for (Entry<String, ArrayList<CommandPair>> entry : move
-                        .getCommands().entrySet()) {
-
-                    boolean match = false; // match indicates whether there is
-                                            // already this unique set of
-                                            // commands in the hashmap
-                    String rankName = entry.getKey();
-                    rankNames.add(rankName);
-                    ArrayList<CommandPair> comPairs = entry.getValue();
-
-                    // for every key in uniquemoves
-                    for (Entry<ArrayList<CommandPair>, String> umEntry : uniqueMoves
-                            .entrySet()) {
-
-                        // if this comPairs = something already in the keyset
-                        if (comPairs.equals(umEntry.getKey())) {
-                            // add ", rankname" to value
-                            uniqueMoves.put(umEntry.getKey(),
-                                    umEntry.getValue() + ", " + rankName);
-                            match = true;
-                            break;
-                        }
-                    }
-                    // if this comPairs not already in the keyset
-                    if (match == false) {
-                        uniqueMoves.put(comPairs, rankName);
-                    }
-
-                }
-
                 // print move's comments
                 if (move.getComments().length() > 0) {
-                    contentStream.setFont(pdfFont, 12);
+                    contentStream.setFont(pdfFont, commentFontSize);
                     contentStream.beginText();
-                    contentStream.newLineAtOffset(imageX + 55, pageHeight - 385);
+                    contentStream.newLineAtOffset(textMarginX, yPosition - commentFontSize);
                     contentStream.showText("Comments:  " + move.getComments());
                     contentStream.endText();
-                    contentStream.setFont(pdfFont, 10);
+
+                    // Reset to original font size
+                    contentStream.setFont(pdfFont, fontSize);
+
+                    // Offset for the comment space
+                    yPosition -= lineSpacing * commentFontSize;
                 }
+
+                // Divide per-rank commands into columns
+                int numColumns = 3;
+                float columnWidth = (pageWidth - 2 * textMarginX) / (float) numColumns;
+                float commandMaxWidth = columnWidth * 0.95f;
+
+                // Get the ranks grouped by unique move
+                List<ConsolidatedDrillInstruction> rankGroups = move.getCommands().entrySet()
+                    // First, convert to map of <list of ranks> -> <list of commands>
+                    .stream().collect(
+                        Collectors.groupingBy(
+                            // TODO: we should group by the string generated by
+                            // the list of commands, NOT the values of the
+                            // CommandPairs. Two direct-to-point CommandPairs
+                            // with different destinations aren't considered
+                            // "equal", but will render identically in PDF
+                            // instructions.
+                            Map.Entry::getValue,
+                            Collectors.mapping(Map.Entry::getKey, Collectors.toList())
+                        )
+                    ).entrySet()
+                    // Then, convert the <list of ranks> -> <list of command> entries to instruction objects
+                    .stream().map(e ->
+                        new ConsolidatedDrillInstruction(e.getValue(), rankFont, fontSize,
+                                                         e.getKey(), pdfFont, fontSize,
+                                                         commandMaxWidth)
+                    ).sorted(
+                        Comparator.comparingInt(ConsolidatedDrillInstruction::getNumLines).reversed()
+                    ).collect(Collectors.toList());
 
                 contentStream.beginText();
-                contentStream.newLineAtOffset(imageX + 55, pageHeight - 410);
+                contentStream.setLeading(lineSpacing * fontSize);
+                contentStream.newLineAtOffset(textMarginX, yPosition - fontSize);
 
-                int columnCount = 0; // tracks number of columns used
+                int rankGroupCounter = 0;
+                int maxLines = 1;
+                boolean newPage = false;
+                for (ConsolidatedDrillInstruction rankGroup : rankGroups) {
+                    int totalLines = rankGroup.getNumLines();
+                    int remainingLines = (int)((yPosition - pageMarginY) / (lineSpacing * fontSize));
+                    if (!newPage && remainingLines < totalLines) {
+                        // End the current page
+                        contentStream.endText();
+                        contentStream.close();
 
-                // find longest command - determines number of lines before next
-                // instruction
-                int maxLength = 0; // keeps track of largest unique instruction
-                                    // (in terms of size of string)
-
-                for (Entry<ArrayList<CommandPair>, String> umEntry : uniqueMoves
-                        .entrySet()) {
-                    String instructions = umEntry.getValue()
-                            + ": "
-                            + umEntry
-                                    .getKey()
-                                    .toString()
-                                    .substring(
-                                            1,
-                                            umEntry.getKey().toString()
-                                                    .length() - 1);
-                    if (instructions.length() > maxLength) {
-                        maxLength = instructions.length();
+                        // Add a new page
+                        yPosition = pageHeight - pageMarginY;
+                        contentStream = addNewPage(document, pageSize,
+                            pageNumber++, pageMarginY, pdfFont, fontSize);
+                        contentStream.beginText();
+                        contentStream.setLeading(lineSpacing * fontSize);
+                        contentStream.newLineAtOffset(textMarginX, yPosition - fontSize);
+                        newPage = true;
                     }
-                }
 
-                int addLines = maxLength / 35; // additional lines needed because of longer instructions
+                    contentStream.setFont(rankFont, fontSize);
+                    for (String line : rankGroup.getRankLines()) {
+                        contentStream.showText(line);
+                        contentStream.newLine();
+                    }
 
+                    // Since we need to print the next text on the same line,
+                    // back up a line and indent by the appropriate offset.
+                    float commandStrOffset = rankGroup.getCommandOffset();
+                    contentStream.newLineAtOffset(commandStrOffset, lineSpacing * fontSize);
+                    contentStream.setFont(pdfFont, fontSize);
+                    for (String line : rankGroup.getCommandLines()) {
+                        contentStream.showText(line);
+                        contentStream.newLine();
+                        contentStream.newLineAtOffset(-commandStrOffset, 0);
 
-                for (Entry<ArrayList<CommandPair>, String> umEntry2 : uniqueMoves
-                        .entrySet()) {
-                    String instructions2 = umEntry2.getValue()
-                            + ": "
-                            + umEntry2
-                                    .getKey()
-                                    .toString()
-                                    .substring(
-                                            1,
-                                            umEntry2.getKey().toString()
-                                                    .length() - 1);
+                        // Zero out the offset so we only apply it to the first
+                        // line.
+                        commandStrOffset = 0;
+                    }
 
-                    // if all instructions less than 30 characters
-                    if (addLines == 0) {
+                    contentStream.newLineAtOffset(0, totalLines * lineSpacing * fontSize);
+                    maxLines = Math.max(maxLines, totalLines);
 
-                        if (columnCount % 3 == 0) {
-                            contentStream.showText(instructions2);
-                            contentStream.newLineAtOffset(190, 0);
-                        } else if (columnCount % 3 == 1) {
-                            contentStream.showText(instructions2);
-                            contentStream.newLineAtOffset(190, 0);
-                        } else if (columnCount % 3 == 2) {
-                            contentStream.showText(instructions2);
-                            contentStream.newLineAtOffset(-380, -30);
-                        }
-                        columnCount++;
+                    // Move to the next writeout position
+                    rankGroupCounter++;
+                    if (rankGroupCounter % numColumns == 0) {
+                        float nextRowOffset = (maxLines + 1) * lineSpacing * fontSize;
+                        contentStream.newLineAtOffset(-((numColumns - 1) * columnWidth), -nextRowOffset);
+                        yPosition -= nextRowOffset;
+                        newPage = false;
                     } else {
-                        // if at least one instruction is greater than 30 characters
-                        // create an ArrayList of substrings
-                        ArrayList<String> divInstructions = new ArrayList<String>(); // contains instructions for each line
-                        int i = 0;
-                        String subString = "";
-
-                        // if instruction length is less than 30, just add the
-                        // entire instruction
-                        if (instructions2.length() < 30) {
-                            subString = instructions2.substring(i,
-                                    instructions2.length());
-                            divInstructions.add(subString);
-                        }
-
-                        // else you need to print instruction on multiple lines
-                        else {
-                            int instrLength = 1; // subinstruction length
-                            while (i < instructions2.length()) {
-
-                                instrLength = Math.min(35, instructions2
-                                        .substring(i, instructions2.length())
-                                        .length());// the min of 35 or amount of
-                                                    // characters left in
-                                                    // instruction
-                                subString = instructions2.substring(i, i
-                                        + instrLength); // !!!!!!!!!need to fix
-                                                        // to go to comma w/e
-                                divInstructions.add(subString);
-                                i = i + 35;
-                            }
-                        }
-
-                        int divInstSize = divInstructions.size(); // number of
-                                                                    // subinstructions
-                        int numLeft = divInstructions.size(); // tracks number of subinstructions left to print
-
-                        if (divInstSize == 1) {
-                            if (columnCount % 3 == 0) {
-                                contentStream.showText(instructions2);
-                                contentStream.newLineAtOffset(190, 0);
-                            } else if (columnCount % 3 == 1) {
-                                contentStream.showText(instructions2);
-                                contentStream.newLineAtOffset(190, 0);
-                            } else if (columnCount % 3 == 2) {
-                                contentStream.showText(instructions2);
-                                contentStream.newLineAtOffset(-380,
-                                        -15 + addLines * (-15));
-                            }
-                            columnCount++;
-                        }
-
-                        else if (divInstSize > 1) {
-                            if (columnCount % 3 == 0) {
-                                for (String s : divInstructions) {
-                                    if (numLeft > 0) {
-                                        contentStream.showText(s);
-                                        contentStream.newLineAtOffset(
-                                                0, -15);
-                                        numLeft--;
-                                    }
-                                }
-                                contentStream.newLineAtOffset(190,
-                                        (divInstSize) * 15);
-                            }
-
-                            else if (columnCount % 3 == 1) {
-                                for (String s : divInstructions) {
-                                    if (numLeft > 0) {
-                                        contentStream.showText(s);
-                                        contentStream.newLineAtOffset(
-                                                0, -15);
-                                        numLeft--;
-                                    }
-                                }
-                                contentStream.newLineAtOffset(190,
-                                        (divInstSize) * 15);
-                            }
-
-                            else if (columnCount % 3 == 2) {
-                                for (String s : divInstructions) {
-                                    if (numLeft > 0) {
-                                        contentStream.showText(s);
-                                        contentStream.newLineAtOffset(
-                                                0, -15);
-                                        numLeft--;
-                                    }
-                                }
-                                contentStream.newLineAtOffset(-380,
-                                        (addLines - 1) * (-15));
-                            }
-                            columnCount++;
-                        }
+                        contentStream.newLineAtOffset(columnWidth, 0);
                     }
 
                 }
@@ -359,16 +314,6 @@ public class PDFGenerator {
 
             }
 
-            // print page number
-            /*if (moveNumber >= 0) {
-                contentStream.beginText();
-                contentStream.newLineAtOffset((pageWidth / 2) - 15,
-                        bufferBottom - 20);
-                contentStream.showText("Page " + pageNumber);
-                contentStream.endText();
-            }*/
-
-            pageNumber++; // increment page number
             moveNumber++; // increment move number
 
             // close out content stream
@@ -392,9 +337,7 @@ public class PDFGenerator {
      */
     public BufferedImage createImage(JPanel panel) {
 
-        int w = panel.getWidth() - 54;
-        int h = panel.getHeight();
-        BufferedImage bi = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+        BufferedImage bi = new BufferedImage(panel.getWidth(), panel.getHeight(), BufferedImage.TYPE_INT_RGB);
         Graphics2D g = bi.createGraphics();
         panel.paint(g);
         return bi;
