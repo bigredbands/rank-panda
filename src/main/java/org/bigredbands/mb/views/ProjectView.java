@@ -4,26 +4,18 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Label;
 import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.regex.Pattern;
 
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
@@ -31,7 +23,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JLayeredPane;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -39,12 +30,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import javax.swing.border.Border;
 import javax.swing.border.LineBorder;
 
 import org.bigredbands.mb.controllers.ControllerInterface;
-import org.bigredbands.mb.controllers.MainController;
 import org.bigredbands.mb.exceptions.FileSelectionException;
 import org.bigredbands.mb.models.CommandPair;
 import org.bigredbands.mb.models.Point;
@@ -125,21 +113,21 @@ public class ProjectView {
         clearSelectedRanks();
 
         // create the command buttons
-        final JButton MT = createButton("MT");
-        JButton Hlt = createButton("Halt");
-        JButton FM = createButton("FM");
-        JButton BM = createButton("BM");
-        JButton RS = createButton("RS");
-        JButton LS = createButton("LS");
-        JButton flatten = createButton("Flat");
-        JButton GT = createButton("GT");
-        JButton PW = createButton("PW");
-        JButton exp = createButton("Exp");
-        JButton cond = createButton("Cond");
-        JButton DTP = createButton("DTP");
-        JButton FTA = createButton("FTA");
-        JButton curve = createButton("Curve");
-        JButton corner = createButton("Corner");
+        final JButton MT = createButton("MT", "Mark Time");
+        final JButton Hlt = createButton("Halt", "Halt");
+        final JButton FM = createButton("FM", "Forward March");
+        final JButton BM = createButton("BM", "Back March");
+        final JButton RS = createButton("RS", "Right Slide");
+        final JButton LS = createButton("LS", "Left Slide");
+        final JButton flatten = createButton("Flat", "Flatten");
+        final JButton GT = createButton("GT", "Gate Turn");
+        final JButton PW = createButton("PW", "Pinwheel");
+        final JButton exp = createButton("Exp", "Expand");
+        final JButton cond = createButton("Cond", "Condense");
+        final JButton DTP = createButton("DTP", "Direct to Point");
+        final JButton FTA = createButton("FTA", "Follow the A**hole");
+        final JButton curve = createButton("Curve", "Curve");
+        final JButton corner = createButton("Corner", "Corner");
 
         //add listeners to confirm and cancel button
         confirmCommand.addActionListener(new ActionListener() {
@@ -1147,14 +1135,28 @@ public class ProjectView {
     }
 
     /**
-     * Adds a button to the button list
-     * @param buttonText - the title of the button
-     * @return - the created button
+     * Creates a button with the given buttonText and adds it to the buttonList.
+     * 
+     * @param buttonText - The title of the button.
+     * @return - The created button.
      */
     private JButton createButton(String buttonText) {
-        JButton button = new JButton(buttonText);
-        buttonList.add(button);
+        final JButton button = new JButton(buttonText);
         button.addKeyListener(new HotKey());
+        buttonList.add(button);
+        return button;
+    }
+
+    /**
+     * Creates a button with the given buttonText and toolTipText and adds it to the buttonList.
+     * 
+     * @param buttonText - The title of the button.
+     * @param toolTipText - The text to display when hovering over the button.
+     * @return - The created button.
+     */
+    private JButton createButton(String buttonText, String toolTipText) {
+        final JButton button = createButton(buttonText);
+        button.setToolTipText(toolTipText);
         return button;
     }
 
