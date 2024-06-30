@@ -52,6 +52,13 @@ public interface ControllerInterface {
     public void closeProgram();
 
     /**
+     * Returns true if the underlying drill data has been modified after loading or creating new drill.
+     * 
+     * @return true if the drill has been modified, false otherwise.
+     */
+    public boolean isModified();
+
+    /**
      * Adds a new rank to the models and update the view
      *
      * @param name - the name of the new rank

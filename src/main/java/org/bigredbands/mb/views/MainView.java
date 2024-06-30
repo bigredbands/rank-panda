@@ -338,6 +338,14 @@ public class MainView implements ViewInterface {
     }
 
     /**
+     * Update the title of the window to the current fileName.
+     */
+    @Override
+    public void updateProjectTitle() {
+        project.updateProjectTitle();
+    }
+
+    /**
      * Gets the currently selected rank, if one exists.
      * Returns the empty string if no rank is selected.
      * @return the currently selected rank or the empty string if no rank is currently selected.

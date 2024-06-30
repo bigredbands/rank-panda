@@ -107,5 +107,10 @@ public interface ViewInterface {
 
     public HashMap<String,RankPosition> getRankPositions();
 
+    /**
+     * Update the title of the window to the current fileName.
+     */
+    public void updateProjectTitle();
+
 
 }
