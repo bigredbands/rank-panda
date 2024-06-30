@@ -25,7 +25,7 @@ public class Wizard{
     private DefaultTableModel countTableModel;
     private String initialSongName;
 
-    Wizard(final ControllerInterface controllerInst){
+    public Wizard(final ControllerInterface controllerInst){
         controller = controllerInst;
 
         int tempoRowNum = 0;
@@ -38,48 +38,38 @@ public class Wizard{
         countTableModel = new DefaultTableModel(countColumns,countRowNum);
 
         initialSongName="";
-
-        //Wizard
-        drawWizard();
     }
 
-    Wizard(final ControllerInterface controllerInst, HashMap<Integer, Integer> initialTempoHash, HashMap<Integer, Integer> initialCountHash, String initialSongTitle){
+    public Wizard(final ControllerInterface controllerInst, HashMap<Integer, Integer> initialTempoHash, HashMap<Integer, Integer> initialCountHash, String initialSongTitle){
         controller = controllerInst;
 
         int tempoRowNum = 0;
-        int countRowNum=0;
+        int countRowNum = 0;
 
-        ////Create TableModels to store data
+        // Create TableModels to store data
         String[] tempoColumns = {"Measure No.", "Tempo"};
         tempoTableModel = new DefaultTableModel(tempoColumns,tempoRowNum);
         String[] countColumns = {"Measure No.", "Counts per Measure"};
         countTableModel = new DefaultTableModel(countColumns,countRowNum);
 
-        //for each entry in the hashMap, add an row to TableModel
-
-        try{
+        // for each entry in the hashMap, add an row to TableModel
+        if (initialTempoHash != null) {
             for(Integer measure: initialTempoHash.keySet()){
                 Integer[] data = {measure, initialTempoHash.get(measure)};
                 sortAdd(tempoTableModel, data);
             }
-        }catch(NullPointerException e){
-            //Do nothing
         }
 
-        try{
+        if (initialCountHash != null) {
+
             //for each entry in the hashMap, add an row to TableModel
             for(Integer measure: initialCountHash.keySet()){
                 Integer[] data = {measure, initialCountHash.get(measure)};
                 sortAdd(countTableModel, data);
             }
-        }catch(NullPointerException e){
-            //Do nothing
         }
 
-
-
         initialSongName = initialSongTitle;
-        drawWizard();
     }
 
 
@@ -87,7 +77,7 @@ public class Wizard{
      * UI Code for Wizard
      *
      */
-    void drawWizard(){
+    public void drawWizard(){
         final JFrame wizardWindow=new JFrame("Song Constants");
         wizardWindow.setResizable(true);
         Dimension minimumSize = new Dimension(500,400);
@@ -365,8 +355,6 @@ public class Wizard{
 
             @Override
             public void actionPerformed(ActionEvent arg0) {
-
-
                 String songName = songNameInput.getText();
 
                 //Add the Table Tempo Data to HashMap
@@ -383,7 +371,7 @@ public class Wizard{
                     countHash.put((Integer)countTableModel.getValueAt(i, 0), (Integer)countTableModel.getValueAt(i, 1));
                 }
 
-                //Give data to Controller Function - ask Dave
+                //Give data to Controller Function
                 controller.setSongConstants(tempoHash, countHash, songName);
 
                 //Close wizard

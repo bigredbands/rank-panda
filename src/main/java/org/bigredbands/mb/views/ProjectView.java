@@ -95,8 +95,6 @@ public class ProjectView {
     //should probably just be a singleton
     private final ProjectView thisProjectView;
 
-    private boolean saved = true;
-
     /**
      * This is the constructor that sets up all of the UI elements and then
      * displays the window to the user
@@ -1130,7 +1128,8 @@ public class ProjectView {
 
         // wizard
         if (showWizard) {
-            new Wizard(controller);
+            final Wizard songConstantsWizard = new Wizard(controller);
+            songConstantsWizard.drawWizard();
         }
     }
 
@@ -1294,8 +1293,7 @@ public class ProjectView {
      */
     public void updateCommandList(ArrayList<CommandPair> commands) {
         commandListView.setCommands(commands);
-        saved = false;
-        updateProjectTitle();
+        mainView.updateProjectTitle();
     }
 
     /**
@@ -1397,8 +1395,12 @@ public class ProjectView {
      */
     public void updateProjectTitle() {
         String title;
-        if (saved) title = mainView.getProjectTitle();
-        else title = "*"+mainView.getProjectTitle();
+        if (!controller.isModified()) {
+            title = mainView.getProjectTitle();
+        }
+        else {
+            title = "*" + mainView.getProjectTitle();
+        }
         window.setTitle(title);
     }
 
@@ -1406,7 +1408,7 @@ public class ProjectView {
      * Make sure we don't lose any changes before closing the window
      */
     private void onClose() {
-        if (saved) {
+        if (!controller.isModified()) {
             mainView.closeProgram();
         }
         else {
@@ -1421,24 +1423,32 @@ public class ProjectView {
                     options[0]);
             if (n==0) {
                 onSave(false);
-                if (saved) mainView.closeProgram();
+                if (!controller.isModified()) {
+                    mainView.closeProgram();
+                }
             }
-            if (n==1) mainView.closeProgram();
+            if (n==1) {
+                mainView.closeProgram();
+            }
         }
     }
 
     /**
      * Save the project.
-     * @param as If as==true, save as. If as==false, normal save.
+     * @param isSaveAs If isSaveAs==true, save as. If isSaveAs==false, normal save.
      */
-    private void onSave(boolean as) {
+    private void onSave(boolean isSaveAs) {
         try {
-            if (as) saved = mainView.saveProjectAs();
-            else saved = mainView.saveProject();
+            if (isSaveAs) {
+                mainView.saveProjectAs();
+            }
+            else {
+                mainView.saveProject();
+            }
         } catch (FileSelectionException e) {
             mainView.displayError(e.getMessage());
         }
-        updateProjectTitle();
+        mainView.updateProjectTitle();
     }
 
     /**
@@ -1527,7 +1537,8 @@ public class ProjectView {
     class SongConstants implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            Wizard myWiz = new Wizard(controller, controller.getTempoHash(), controller.getCountHash(), controller.getSongName());
+            Wizard songConstantsWizard = new Wizard(controller, controller.getTempoHash(), controller.getCountHash(), controller.getSongName());
+            songConstantsWizard.drawWizard();
         }
     }
 

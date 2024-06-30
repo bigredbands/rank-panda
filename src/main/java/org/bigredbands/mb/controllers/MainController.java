@@ -49,9 +49,6 @@ public class MainController implements ControllerInterface, SynchronizedControll
     // The name of the selected rank
     private HashSet<String> selectedRanks = new HashSet<String>();
 
-    // The main thread handling all normal processes
-    private Thread mainThread;
-
     // The playback thread used exclusively when displaying playback to the user
     private Thread playbackThread = null;
 
@@ -65,6 +62,8 @@ public class MainController implements ControllerInterface, SynchronizedControll
     private int playbackMove = 1;
 
     private int playbackCountTotal = 0;
+
+    private boolean modified = false;
 
     /**
      * The constructor that prepares this class for use
@@ -89,8 +88,6 @@ public class MainController implements ControllerInterface, SynchronizedControll
         //Set up the main view and display the intro screen to the user
         mainView = new MainView(this);
         mainView.createIntroView();
-
-        mainThread = Thread.currentThread();
     }
 
     /**
@@ -119,6 +116,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
 
         //TODO: assuming nothing went wrong with the save...
         fileUrl = file.getAbsolutePath();
+        modified = false;
     }
 
     /**
@@ -206,7 +204,11 @@ public class MainController implements ControllerInterface, SynchronizedControll
     public void closeProgram() {
         // TODO do proper clean up, dont just exit and kill everything
         System.exit(0);
+    }
 
+    @Override
+    public boolean isModified() {
+        return modified;
     }
 
     /**
@@ -258,6 +260,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
             mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
         }
         mainView.updateViewWithOneMove(drillInfo.getMoves().size() - 1, drillInfo.getMoves().get(drillInfo.getMoves().size() - 1).getCounts());
+        modified = true;
     }
 
     /**
@@ -283,7 +286,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
             mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
         }
         mainView.updateViewWithRemoveMove(currentMove, drillInfo.getMoves().get(currentMove).getCounts(),moveNum);
-
+        modified = true;
     }
 
     /**
@@ -327,6 +330,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
             selectedRanks.add(rankName);
             mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
             mainView.updateView(currentMove, drillInfo.getMoves().get(currentMove).getCounts());
+            modified = true;
         }
         else {
             mainView.displayError(errorMessage);
@@ -438,6 +442,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
         selectedRanks.add(rankName);
         mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
         mainView.updateView(currentMove, drillInfo.getMoves().get(currentMove).getCounts());
+        modified = true;
     }
 
     /**
@@ -448,14 +453,16 @@ public class MainController implements ControllerInterface, SynchronizedControll
     @Override
     public void addSelectedRank(String rankName, boolean reset) {
         if (drillInfo.doesRankExist(rankName)) {
-            if(reset) selectedRanks.clear();
+            if(reset) {
+                selectedRanks.clear();
+            }
 
             // TODO: decide what's more important: deselection from group, or ability to drag a group
-//            if (selectedRanks.contains(rankName)) {
-//                selectedRanks.remove(rankName);
-//            } else {
+            // if (selectedRanks.contains(rankName)) {
+            //     selectedRanks.remove(rankName);
+            // } else {
             selectedRanks.add(rankName);
-//            }
+            // }
             mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
             mainView.updateView(currentMove, drillInfo.getMoves().get(currentMove).getCounts());
         }
@@ -505,6 +512,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
         }
 
         mainView.updateView(currentMove, drillInfo.getMoves().get(currentMove).getCounts());
+        modified = true;
     }
 
     /**
@@ -522,6 +530,10 @@ public class MainController implements ControllerInterface, SynchronizedControll
         drillInfo.setTempoHashMap(tempoHashMap);
         drillInfo.setCountsHashMap(countsHashMap);
         drillInfo.setSongName(songName);
+        modified = true;
+
+        // Must be called after setting modified = true so that the project title is updated to indicate the modification.
+        mainView.updateProjectTitle();
     }
 
     /**
@@ -830,6 +842,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
             }
         }
 
+        modified = true;
     }
 
     /**
@@ -877,6 +890,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
             }
         }
 
+        modified = true;
     }
 
     /**
@@ -923,6 +937,8 @@ public class MainController implements ControllerInterface, SynchronizedControll
                 mainView.displayError(errorMessage);
             }
         }
+
+        modified = true;
     }
 
     /**
@@ -975,6 +991,8 @@ public class MainController implements ControllerInterface, SynchronizedControll
                 mainView.displayError(errorMessage);
             }
         }
+
+        modified = true;
     }
 
     /**
@@ -1033,6 +1051,8 @@ public class MainController implements ControllerInterface, SynchronizedControll
                 mainView.displayError(errorMessage);
             }
         }
+
+        modified = true;
         return "";
     }
 
