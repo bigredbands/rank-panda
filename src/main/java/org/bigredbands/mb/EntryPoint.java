@@ -10,10 +10,14 @@ import org.bigredbands.mb.controllers.MainController;
 public class EntryPoint {
 
     /**
-     * @param args
+     * @param args - String args passed from the command line. Currently unused.
      */
     public static void main(String[] args) {
-        new MainController();
+        final MainController.ControllerViewBundle controllerViewBundle = MainController.BuildMainControllerAndView();
+
+        // Creates and draws the initial view of the program.
+        controllerViewBundle.getView().createIntroView();
+
     }
 
 }
