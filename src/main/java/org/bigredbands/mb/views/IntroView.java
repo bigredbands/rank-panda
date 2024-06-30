@@ -99,8 +99,9 @@ public class IntroView {
                 mainView.closeProgram();
             }
         });
+    }
 
-        //Now that everything on the window is set up, display the window
+    public void Draw() {
         window.setVisible(true);
     }
 

@@ -64,6 +64,9 @@ public class MainView implements ViewInterface {
      */
     public void createIntroView() {
         intro = new IntroView(this);
+        // Now that everything on the window is set up, display the window
+        intro.Draw();
+
     }
 
     /**
@@ -651,7 +654,7 @@ public class MainView implements ViewInterface {
         int returnValue = pdfFileChooser.showSaveDialog(getCurrentWindow());
         File file;
 
-        if (returnValue == pdfFileChooser.APPROVE_OPTION) {
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
             String path = pdfFileChooser.getSelectedFile().getPath();
             path = path.lastIndexOf(".pdf") > 0 ? path.substring(0, path.lastIndexOf(".pdf")) : path;
             file = new File (path + ".pdf");

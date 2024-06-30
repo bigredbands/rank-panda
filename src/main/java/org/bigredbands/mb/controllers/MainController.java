@@ -66,28 +66,64 @@ public class MainController implements ControllerInterface, SynchronizedControll
     private boolean modified = false;
 
     /**
-     * The constructor that prepares this class for use
+     * A simple wrapper class containing a MainController and a MainView.
      */
-    public MainController() {
-        initialize();
+    public static class ControllerViewBundle {
+        private MainController mainController;
+        private MainView mainView;
+
+        public ControllerViewBundle(MainController mainController, MainView mainView) {
+            this.mainController = mainController;
+            this.mainView = mainView;
+        }
+
+        public MainController getController() {
+            return mainController;
+        }
+
+        public MainView getView() {
+            return mainView;
+        }
     }
 
     /**
-     * Initializes this class for use
+     * Creates a fully initialized MainController and MainView.
+     * 
+     * Note: The MainController and MainView have a circular dependency where each
+     * needs a reference to the other. This method serves as a patch to make sure
+     * each are fully initialized. Longterm, this circular dependency should be
+     * resolved.
+     * 
+     * @return a ControllerViewBundle containing the fully initialized
+     *         MainController and MainView.
      */
-    private void initialize() {
-        //TODO: used to initialize with createnewproject, but cant do that any more due to view code in the function
-        //Initialize all necessary variables
+    public static ControllerViewBundle BuildMainControllerAndView() {
+        final MainController mainController = new MainController();
+        final MainView mainView = new MainView(mainController);
+        mainController.initializeWithMainView(mainView);
+        return new ControllerViewBundle(mainController, mainView);
+    }
+
+    /**
+     * Creates a MainController class. Not fully intitialized until
+     * initializeWithMainView is called.
+     * 
+     * Generally, BuildMainControllerAndView should be preferred, as this ensures
+     * both the MainController and MainView are intialized correctly.
+     */
+    public MainController() {
         fileUrl = "";
         drillInfo = new DrillInfo();
         transientRanks = new HashMap<String, RankPosition>();
         currentMove = 0;
         selectedRanks.clear();
+    }
 
-        //TODO: fill me in! initialize the view and anything else that needs to be done here
-        //Set up the main view and display the intro screen to the user
-        mainView = new MainView(this);
-        mainView.createIntroView();
+    /**
+     * Initializes the MainController with a MainView.
+     */
+    public void initializeWithMainView(ViewInterface mainView) {
+        this.mainView = mainView;
     }
 
     /**
