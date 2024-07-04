@@ -285,7 +285,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
         drillInfo.addMove(counts, currentMove + 1);
         currentMove = currentMove + 1;
         if (!selectedRanks.isEmpty()) {
-            mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
+            mainView.updateSelectedRank(selectedRanks);
         }
         modified = true;
         mainView.updateViewWithOneMove(drillInfo.getMoves().size() - 1, drillInfo.getMoves().get(drillInfo.getMoves().size() - 1).getCounts());
@@ -311,7 +311,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
         }
 
         if (!selectedRanks.isEmpty()) {
-            mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
+            mainView.updateSelectedRank(selectedRanks);
         }
         modified = true;
         mainView.updateViewWithRemoveMove(currentMove, drillInfo.getMoves().get(currentMove).getCounts(),moveNum);
@@ -337,7 +337,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
         if (targetMove != currentMove) {
             currentMove = targetMove;
             if (!selectedRanks.isEmpty()) {
-                mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks, drillInfo.getMoves().get(currentMove).getCommands()));
+                mainView.updateSelectedRank(selectedRanks);
             }
             mainView.updateView(currentMove, drillInfo.getMoves().get(currentMove).getCounts());
         }
@@ -353,11 +353,10 @@ public class MainController implements ControllerInterface, SynchronizedControll
     public void addRank(String rankName, RankPosition rankPosition) {
         String errorMessage = drillInfo.addRankToMoves(rankName, rankPosition);
         if (errorMessage.isEmpty()) {
-            // TODO: maybe not clear? idk
             selectedRanks.clear();
             selectedRanks.add(rankName);
             modified = true;
-            mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
+            mainView.updateSelectedRank(selectedRanks);
             mainView.updateView(currentMove, drillInfo.getMoves().get(currentMove).getCounts());
         }
         else {
@@ -371,7 +370,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
 
     }
 
-    private ArrayList<CommandPair> getSharedCommands(HashSet<String> rankNames, HashMap<String,ArrayList<CommandPair>>commands) {
+    public ArrayList<CommandPair> getSharedCommands(HashSet<String> rankNames, HashMap<String,ArrayList<CommandPair>>commands) {
         if(rankNames.size()==0) {
             return new ArrayList<CommandPair>();
         }
@@ -469,7 +468,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
         //TODO: may not be necessary later when you have to select ranks by clicking on them first
         selectedRanks.add(rankName);
         modified = true;
-        mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
+        mainView.updateSelectedRank(selectedRanks);
         mainView.updateView(currentMove, drillInfo.getMoves().get(currentMove).getCounts());
     }
 
@@ -492,7 +491,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
             // } else {
             selectedRanks.add(rankName);
             // }
-            mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
+            mainView.updateSelectedRank(selectedRanks);
             mainView.updateView(currentMove, drillInfo.getMoves().get(currentMove).getCounts());
         }
         else {
@@ -506,7 +505,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
      */
     public void deselectAll() {
         selectedRanks.clear();
-        mainView.updateSelectedRank(new HashSet<String>(), new ArrayList<CommandPair>());
+        mainView.clearSelectedRank();
         mainView.updateView(currentMove, drillInfo.getMoves().get(currentMove).getCounts());
     }
 
@@ -523,24 +522,21 @@ public class MainController implements ControllerInterface, SynchronizedControll
     /**
      * Deletes the specified rank
      *
-     * @param rankName - the name of the rank to be deleted
+     * @param rankNames - the names of the ranks to be deleted
      */
     @Override
-    public void deleteRank(HashSet<String>rankNames) {
+    public void deleteRank(HashSet<String> rankNames) {
         HashSet<String> oldSelectedRanks = (HashSet<String>)rankNames.clone();
 
         for(String rankName : oldSelectedRanks) {
             drillInfo.deleteRank(rankName);
             if (selectedRanks.contains(rankName)) {
                 selectedRanks.remove(rankName);
-                mainView.updateSelectedRank(new HashSet<String>(), new ArrayList<CommandPair>());
-            }
-            else {
-                mainView.updateSelectedRank(selectedRanks, drillInfo.getMoves().get(currentMove).getCommands().get(rankName));
             }
         }
 
         modified = true;
+        mainView.updateSelectedRank(selectedRanks);
         mainView.updateView(currentMove, drillInfo.getMoves().get(currentMove).getCounts());
     }
 
@@ -865,7 +861,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
             String errorMessage = drillInfo.getMoves().get(currentMove).renameCommand(rankName, rankIndex, name);
             if (errorMessage.isEmpty()) {
                 modified = true;
-                mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
+                mainView.updateSelectedRank(selectedRanks);
             }
             else {
                 mainView.displayError(errorMessage);
@@ -912,7 +908,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
             String errorMessage = drillInfo.getMoves().get(currentMove).moveCommandsUp(rankName, rankIndices);
             if (errorMessage.isEmpty()) {
                 modified = true;
-                mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
+                mainView.updateSelectedRank(selectedRanks);
             }
             else {
                 mainView.displayError(errorMessage);
@@ -959,7 +955,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
             String errorMessage = drillInfo.getMoves().get(currentMove).moveCommandsDown(rankName, rankIndices);
             if (errorMessage.isEmpty()) {
                 modified = true;
-                mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
+                mainView.updateSelectedRank(selectedRanks);
             }
             else {
                 mainView.displayError(errorMessage);
@@ -1012,7 +1008,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
             String errorMessage = drillInfo.getMoves().get(currentMove).mergeCommands(rankName, rankIndices);
             if (errorMessage.isEmpty()) {
                 modified = true;
-                mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
+                mainView.updateSelectedRank(selectedRanks);
             }
             else {
                 mainView.displayError(errorMessage);
@@ -1071,7 +1067,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
             String errorMessage = drillInfo.getMoves().get(currentMove).splitCommand(rankName, rankIndex, count);
             if (errorMessage.isEmpty()) {
                 modified = true;
-                mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
+                mainView.updateSelectedRank(selectedRanks);
             }
             else {
                 mainView.displayError(errorMessage);

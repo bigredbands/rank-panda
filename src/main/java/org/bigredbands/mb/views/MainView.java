@@ -178,13 +178,31 @@ public class MainView implements ViewInterface {
     }
 
     /**
+     * Updates the selected rank text and the currently displayed commands on the screen.
+     * The commands for the given rank names are displayed.
+     *
+     * @param rankName - the rank name to display
+     */
+    @Override
+    public void updateSelectedRank(HashSet<String> rankNames) {
+        updateSelectedRank(rankNames, controller.getSharedCommands(rankNames, controller.getCurrentMove().getCommands()));
+    }
+
+    /**
+     * Clears the select rank text and the currently displayed commands on the screen.
+     */
+    @Override
+    public void clearSelectedRank() {
+        updateSelectedRank(new HashSet<String>(), new ArrayList<CommandPair>());
+    }
+
+    /**
      * Updates the selected rank text on the screen and the currently displayed commands.
      *
      * @param rankName - the rank name to display
      * @param commands - the commands to display in the command list.
      */
-    @Override
-    public void updateSelectedRank(HashSet<String>rankNames, ArrayList<CommandPair> commands) {
+    private void updateSelectedRank(HashSet<String> rankNames, ArrayList<CommandPair> commands) {
         project.updateSelectedRank(rankNames);
         project.updateCommandList(commands);
         updateProjectTitle();

@@ -1,6 +1,7 @@
 package org.bigredbands.mb.controllers;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -289,6 +290,15 @@ public interface ControllerInterface {
 
     public void updateInitialPosition(String rankName, RankPosition newPos);
 
-    void deleteMove(int moveNum);
+    public void deleteMove(int moveNum);
+
+    /**
+     * Gets the set of shared commands for the given rankNames and their commands.
+     * 
+     * @param rankNames - The rankNames for which to fetch shared commands.
+     * @param commands - The commands for which to fetch shared commands.
+     * @return An ArrayList containing the shared commands.
+     */
+    public ArrayList<CommandPair> getSharedCommands(HashSet<String> rankNames, HashMap<String, ArrayList<CommandPair>> commands);
 
 }

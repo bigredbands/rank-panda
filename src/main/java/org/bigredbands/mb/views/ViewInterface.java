@@ -78,12 +78,16 @@ public interface ViewInterface {
 
     /**
      * Updates the selected rank text on the screen and the currently displayed commands.
+     * The commands for the given rank names are displayed.
      *
-     * @param rankNames - the rank names to display
-     * @param commands - the commands to display in the command list.
+     * @param rankName - the rank name to display
      */
-    void updateSelectedRank(HashSet<String> rankNames,
-            ArrayList<CommandPair> commands);
+    public void updateSelectedRank(HashSet<String> rankNames);
+
+    /**
+     * Clears the select rank text and the currently displayed commands on the screen.
+     */
+    public void clearSelectedRank();
 
     /**
      * Disables the listeners of the buttons in project view for playback
