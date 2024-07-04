@@ -294,7 +294,6 @@ public class ProjectView {
         JMenuItem exitMenuItem = new JMenuItem("Exit");
 
         // Creates the buttons for the edit menu
-        JMenuItem addRankMenuItem = new JMenuItem("Add Rank");
         JMenuItem songConstantsMenuItem = new JMenuItem("Edit Song Constants");
         JMenuItem editMoveComments = new JMenuItem("Edit Move Comments");
 
@@ -309,7 +308,6 @@ public class ProjectView {
         exitMenuItem.setToolTipText("Exit the program");
 
         // Sets the tooltips for the edit menu
-        addRankMenuItem.setToolTipText("Add a new rank to this project");
         songConstantsMenuItem.setToolTipText("Modify measures' tempos and counts");
         editMoveComments.setToolTipText("Edit the comments section in the PDF for this move.");
 
@@ -321,7 +319,6 @@ public class ProjectView {
         saveAsMenuItem.addActionListener(new SaveAs());
         exportPDFMenuItem.addActionListener(new ExportPDF());
         exitMenuItem.addActionListener(new Exit());
-        addRankMenuItem.addActionListener(new AddRank());
         songConstantsMenuItem.addActionListener(new SongConstants());
         editMoveComments.addActionListener(new EditMoveComments());
 
@@ -333,7 +330,6 @@ public class ProjectView {
         fileMenu.add(saveAsMenuItem);
         fileMenu.add(exportPDFMenuItem);
         fileMenu.add(exitMenuItem);
-        editMenu.add(addRankMenuItem);
         editMenu.add(songConstantsMenuItem);
         editMenu.add(editMoveComments);
         menuBar.add(fileMenu);
@@ -893,6 +889,7 @@ public class ProjectView {
         // sets up the bar above the command buttons
         //Add rank button
         JButton addRankButton = createButton("Add Rank");
+        addRankButton.setToolTipText("Add a new rank to this project");
         addRankButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -1518,16 +1515,6 @@ public class ProjectView {
         @Override
         public void actionPerformed(ActionEvent e) {
             onClose();
-        }
-    }
-
-    /**
-     * This method communicates with the football field to add a rank to the field
-     */
-    class AddRank implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            fieldPanel.drawNewRank(thisProjectView);
         }
     }
 
