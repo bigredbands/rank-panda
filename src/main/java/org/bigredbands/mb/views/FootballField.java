@@ -7,8 +7,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Shape;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -20,8 +18,6 @@ import java.awt.geom.QuadCurve2D;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
@@ -609,7 +605,8 @@ public class FootballField extends JPanel {
     }
 
     /**
-     * call to allow this instance of football field to take mouse clicks
+     * Call to allow this instance of football field to take mouse clicks
+     * 
      * @param projectView - the main container which the field is placed in
      */
     public void enableMouseClicks(final ProjectView projectView) {
@@ -1339,25 +1336,21 @@ public class FootballField extends JPanel {
     /**
      * Called whenever the user clicks on the add new rank button.  Will start a new add rank task by reseting
      * the values used in the mouse listener.  Does not do anything if enableMouseClicks() is not called first.
-     * @param projectView - the main container holding the football field
      */
-    public void drawNewRank(final ProjectView projectView) {
+    public void drawNewRank() {
         if (!addRankFlag) {
             clicks=0;
             addRankFlag = true;
-            projectView.setMessageLabelText("Click where the tail of the new rank is located");
             xMouseOval = 0;
             yMouseOval = 0;
-            projectView.displayAddRankInfo();
         }
     }
 
     /**
      * Called whenever the user clicks on the add DTP button.  Will start a new add DTP destination task by reseting
      * the values used in the mouse listener.  Does not do anything if enableMouseClicks() is not called first.
-     * @param projectView - the main container holding the football field
      */
-    public void drawDTPRank(final ProjectView projectView) {
+    public void drawDTPRank() {
         if (!addDTPFlag) {
             clicks=0;
             addDTPFlag = true;
@@ -1376,7 +1369,7 @@ public class FootballField extends JPanel {
         }
     }
 
-    public void drawFTARank(final ProjectView projectView) {
+    public void drawFTARank() {
         if (!addFTARankFlag) { // or addFTAPathFlag??
             clicks=0;
             addFTARankFlag = true;

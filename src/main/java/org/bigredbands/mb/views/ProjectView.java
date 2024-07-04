@@ -545,7 +545,7 @@ public class ProjectView {
                     rankInfoToolbar.add(new JLabel("Set destination"));
                     specialCommandToolbar.add(rankInfoToolbar, BorderLayout.CENTER);
                     rankInfoToolbar.setVisible(true);
-                    fieldPanel.drawDTPRank(thisProjectView);
+                    fieldPanel.drawDTPRank();
                 }
             }
         });
@@ -571,7 +571,7 @@ public class ProjectView {
                     rankInfoToolbar.add(new JLabel("Set destination"));
                     specialCommandToolbar.add(rankInfoToolbar, BorderLayout.CENTER);
                     rankInfoToolbar.setVisible(true);
-                    fieldPanel.drawFTARank(thisProjectView);
+                    fieldPanel.drawFTARank();
                 }*/
                 commandFlag = -1;
 
@@ -894,7 +894,9 @@ public class ProjectView {
             @Override
             public void actionPerformed(ActionEvent e) {
                 cancelPreviousCommand(commandFlag);
-                fieldPanel.drawNewRank(thisProjectView);
+                setMessageLabelText("Click where the tail of the new rank is located");
+                displayAddRankInfo();
+                fieldPanel.drawNewRank();
             }
         });
 
