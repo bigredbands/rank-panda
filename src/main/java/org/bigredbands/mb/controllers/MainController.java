@@ -1131,6 +1131,10 @@ public class MainController implements ControllerInterface, SynchronizedControll
     @Override
     public void setMoveComment(String comment) {
         drillInfo.getMoves().get(currentMove).setComments(comment);
+        modified = true;
+
+        // Must be called after setting modified = true so that the project title is updated to indicate the modification.
+        mainView.updateProjectTitle();
     }
 
     /**
