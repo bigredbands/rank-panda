@@ -295,8 +295,8 @@ public class MainController implements ControllerInterface, SynchronizedControll
         if (!selectedRanks.isEmpty()) {
             mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
         }
-        mainView.updateViewWithOneMove(drillInfo.getMoves().size() - 1, drillInfo.getMoves().get(drillInfo.getMoves().size() - 1).getCounts());
         modified = true;
+        mainView.updateViewWithOneMove(drillInfo.getMoves().size() - 1, drillInfo.getMoves().get(drillInfo.getMoves().size() - 1).getCounts());
     }
 
     /**
@@ -321,8 +321,8 @@ public class MainController implements ControllerInterface, SynchronizedControll
         if (!selectedRanks.isEmpty()) {
             mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
         }
-        mainView.updateViewWithRemoveMove(currentMove, drillInfo.getMoves().get(currentMove).getCounts(),moveNum);
         modified = true;
+        mainView.updateViewWithRemoveMove(currentMove, drillInfo.getMoves().get(currentMove).getCounts(),moveNum);
     }
 
     /**
@@ -476,9 +476,9 @@ public class MainController implements ControllerInterface, SynchronizedControll
 
         //TODO: may not be necessary later when you have to select ranks by clicking on them first
         selectedRanks.add(rankName);
+        modified = true;
         mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
         mainView.updateView(currentMove, drillInfo.getMoves().get(currentMove).getCounts());
-        modified = true;
     }
 
     /**
@@ -547,8 +547,8 @@ public class MainController implements ControllerInterface, SynchronizedControll
             }
         }
 
-        mainView.updateView(currentMove, drillInfo.getMoves().get(currentMove).getCounts());
         modified = true;
+        mainView.updateView(currentMove, drillInfo.getMoves().get(currentMove).getCounts());
     }
 
     /**
@@ -871,14 +871,13 @@ public class MainController implements ControllerInterface, SynchronizedControll
 
             String errorMessage = drillInfo.getMoves().get(currentMove).renameCommand(rankName, rankIndex, name);
             if (errorMessage.isEmpty()) {
+                modified = true;
                 mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
             }
             else {
                 mainView.displayError(errorMessage);
             }
         }
-
-        modified = true;
     }
 
     /**
@@ -919,14 +918,13 @@ public class MainController implements ControllerInterface, SynchronizedControll
 
             String errorMessage = drillInfo.getMoves().get(currentMove).moveCommandsUp(rankName, rankIndices);
             if (errorMessage.isEmpty()) {
+                modified = true;
                 mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
             }
             else {
                 mainView.displayError(errorMessage);
             }
         }
-
-        modified = true;
     }
 
     /**
@@ -967,14 +965,13 @@ public class MainController implements ControllerInterface, SynchronizedControll
 
             String errorMessage = drillInfo.getMoves().get(currentMove).moveCommandsDown(rankName, rankIndices);
             if (errorMessage.isEmpty()) {
+                modified = true;
                 mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
             }
             else {
                 mainView.displayError(errorMessage);
             }
         }
-
-        modified = true;
     }
 
     /**
@@ -1021,14 +1018,13 @@ public class MainController implements ControllerInterface, SynchronizedControll
 
             String errorMessage = drillInfo.getMoves().get(currentMove).mergeCommands(rankName, rankIndices);
             if (errorMessage.isEmpty()) {
+                modified = true;
                 mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
             }
             else {
                 mainView.displayError(errorMessage);
             }
         }
-
-        modified = true;
     }
 
     /**
@@ -1081,6 +1077,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
 
             String errorMessage = drillInfo.getMoves().get(currentMove).splitCommand(rankName, rankIndex, count);
             if (errorMessage.isEmpty()) {
+                modified = true;
                 mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
             }
             else {
@@ -1088,7 +1085,6 @@ public class MainController implements ControllerInterface, SynchronizedControll
             }
         }
 
-        modified = true;
         return "";
     }
 
