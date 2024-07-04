@@ -142,6 +142,7 @@ public class MainView implements ViewInterface {
     @Override
     public void updateView(int moveNumber, int countNumber) {
         updateFootballField(moveNumber, countNumber);
+        updateProjectTitle();
         project.repaintScrollBar();
     }
 

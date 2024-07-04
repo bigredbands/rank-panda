@@ -364,9 +364,9 @@ public class MainController implements ControllerInterface, SynchronizedControll
             // TODO: maybe not clear? idk
             selectedRanks.clear();
             selectedRanks.add(rankName);
+            modified = true;
             mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
             mainView.updateView(currentMove, drillInfo.getMoves().get(currentMove).getCounts());
-            modified = true;
         }
         else {
             mainView.displayError(errorMessage);
@@ -1107,7 +1107,6 @@ public class MainController implements ControllerInterface, SynchronizedControll
             try {
                 pdfGenerator.createPDF(drillInfo, file);
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 mainView.displayError("IOException occurred in generating PDF");
                 e.printStackTrace();
             }
