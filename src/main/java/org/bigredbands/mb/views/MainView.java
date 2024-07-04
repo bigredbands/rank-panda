@@ -188,6 +188,7 @@ public class MainView implements ViewInterface {
     public void updateSelectedRank(HashSet<String>rankNames, ArrayList<CommandPair> commands) {
         project.updateSelectedRank(rankNames);
         project.updateCommandList(commands);
+        updateProjectTitle();
     }
 
     /**
