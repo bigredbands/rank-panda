@@ -36,13 +36,6 @@ public class MainController implements ControllerInterface, SynchronizedControll
     // The main model which stores the ranks and moves for the project
     private DrillInfo drillInfo;
 
-    // Additional visual indicators to be displayed to the user, but not stored as ranks
-    private HashMap<String, RankPosition> transientRanks;
-
-    // The name of the indicator used to show the user how their rank will look if drawn
-    // at the mouse's current position
-    public static final String TEMP_DRAWING_RANK = "TEMP_DRAWING_RANK";
-
     // The number of the current move
     private int currentMove;
 
@@ -114,7 +107,6 @@ public class MainController implements ControllerInterface, SynchronizedControll
     public MainController() {
         fileUrl = "";
         drillInfo = new DrillInfo();
-        transientRanks = new HashMap<String, RankPosition>();
         currentMove = 0;
         selectedRanks.clear();
     }
@@ -408,7 +400,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
                             if (altCmd.getCounts() == refCmd.getCounts()
                                     && altCmd.getCommand() == refCmd.getCommand()) {
                                 if (i == rankArray.length - 1) {
-                                    if (diffCounts != 0) shared.add(new CommandPair(32, diffCounts));
+                                    if (diffCounts != 0) shared.add(new CommandPair(CommandPair.EMPTY, diffCounts));
                                     diffCounts = 0;
 
                                     shared.add(new CommandPair(refCmd.getCommand(), refCmd.getCounts()));
@@ -457,7 +449,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
 
             diffCounts = (maxLen - sharedLen);
 
-            if (diffCounts > 0) shared.add(new CommandPair(32, diffCounts));
+            if (diffCounts > 0) shared.add(new CommandPair(CommandPair.EMPTY, diffCounts));
 
             return shared;
         }
@@ -465,7 +457,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
 
     /**
      * Using the end position of the current move and the commands of all subsequent moves for a rank, updates the start and
-     * end positions of each move based on the current move.  Useful for when the commands of an middle move are
+     * end positions of each move based on the current move.  Useful for when the commands of a middle move are
      * changed and the later moves need to have their positions updated.
      * @param rankName - the rank whose positions need to be updated.
      */
@@ -482,9 +474,10 @@ public class MainController implements ControllerInterface, SynchronizedControll
     }
 
     /**
-     * Sets the selected rank to the specified rank
+     * Sets the selected rank to the specified rank.
      *
-     * @param rankName - the rank name of the new selected rank
+     * @param rankName - The rank name of the new selected rank
+     * @param reset - If true, unselects all other ranks before selecting the new one.
      */
     @Override
     public void addSelectedRank(String rankName, boolean reset) {
@@ -801,7 +794,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
         ArrayList<CommandPair> sharedCommands = getSharedCommands(selectedRanks, allCommands);
 
         for (int indx : commandIndices) {
-            if (sharedCommands.get(indx).getCommand() == 32) {
+            if (sharedCommands.get(indx).getCommand() == CommandPair.EMPTY) {
                 // If any of the requested commands are a mixed one, return an error and delete nothing
                 mainView.displayError("Cannot delete mixed command");
                 return;
@@ -848,7 +841,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
         HashMap<String,ArrayList<CommandPair>> allCommands = drillInfo.getMoves().get(currentMove).getCommands();
         ArrayList<CommandPair> sharedCommands = getSharedCommands(selectedRanks, allCommands);
 
-        if (sharedCommands.get(index).getCommand() == 32) {
+        if (sharedCommands.get(index).getCommand() == CommandPair.EMPTY) {
             mainView.displayError("Cannot rename mixed command");
             return;
         }
@@ -891,7 +884,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
         ArrayList<CommandPair> sharedCommands = getSharedCommands(selectedRanks, allCommands);
 
         for (int indx : commandIndices) {
-            if (sharedCommands.get(indx).getCommand() == 32) {
+            if (sharedCommands.get(indx).getCommand() == CommandPair.EMPTY) {
                 mainView.displayError("Cannot move mixed command up");
                 return;
             }
@@ -938,7 +931,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
         ArrayList<CommandPair> sharedCommands = getSharedCommands(selectedRanks, allCommands);
 
         for (int indx : commandIndices) {
-            if (sharedCommands.get(indx).getCommand() == 32) {
+            if (sharedCommands.get(indx).getCommand() == CommandPair.EMPTY) {
                 mainView.displayError("Cannot move mixed command down");
                 return;
             }
@@ -986,12 +979,12 @@ public class MainController implements ControllerInterface, SynchronizedControll
         ArrayList<CommandPair> sharedCommands = getSharedCommands(selectedRanks, allCommands);
 
         for (int indx : commandIndices) {
-            if (sharedCommands.get(indx).getCommand() == 32) {
+            if (sharedCommands.get(indx).getCommand() == CommandPair.EMPTY) {
                 mainView.displayError("Cannot merge mixed commands");
                 return;
             }
 
-            if (sharedCommands.get(indx).getCommand() == 19) {
+            if (sharedCommands.get(indx).getCommand() == CommandPair.DTP) {
                 mainView.displayError("Cannot merge DTP commands");
                 return;
             }
@@ -1049,12 +1042,12 @@ public class MainController implements ControllerInterface, SynchronizedControll
             return "The specified count was larger than counts in the move.";
         }
 
-        if (sharedCommands.get(index).getCommand() == 32) {
+        if (sharedCommands.get(index).getCommand() == CommandPair.EMPTY) {
             mainView.displayError("Cannot split mixed command");
             return "";
         }
 
-        if (sharedCommands.get(index).getCommand() == 19) {
+        if (sharedCommands.get(index).getCommand() == CommandPair.DTP) {
             mainView.displayError("Cannot split DTP command");
             return "";
         }
@@ -1139,31 +1132,19 @@ public class MainController implements ControllerInterface, SynchronizedControll
      * @return - the number of the current move
      */
     @Override
-    public int getCurrentMove() {
+    public int getCurrentMoveNumber() {
         return currentMove;
     }
 
     /**
-     * Returns additional indicators to be displayed to the user not stored as ranks
-     *
-     * @return - a hashmap mapping the name of the indicator to its position
+     * Returns the current move.
+     * 
+     * @return - the current move.
      */
-    @Override
-    public HashMap<String, RankPosition> getTransientRanks() {
-        return transientRanks;
+    public Move getCurrentMove() {
+        return drillInfo.getMoves().get(currentMove);
     }
 
-    /**
-     * Adds a temporary indicator to show the user how the rank would look if drawn to
-     * the current position
-     *
-     * @param temporaryDrawingRank - the position of the indicator to be drawn
-     */
-    @Override
-    public void addTemporaryDrawingRank(RankPosition temporaryDrawingRank) {
-        transientRanks.put(TEMP_DRAWING_RANK, temporaryDrawingRank);
-        mainView.updateView(currentMove, drillInfo.getMoves().get(currentMove).getCounts());
-    }
 }
 
 

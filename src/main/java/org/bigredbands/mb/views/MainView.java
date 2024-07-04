@@ -1,18 +1,17 @@
 package org.bigredbands.mb.views;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.bigredbands.mb.controllers.ControllerInterface;
 import org.bigredbands.mb.models.CommandPair;
+import org.bigredbands.mb.models.Move;
 import org.bigredbands.mb.models.RankPosition;
 import org.bigredbands.mb.exceptions.FileSelectionException;
 
@@ -570,27 +569,17 @@ public class MainView implements ViewInterface {
      *
      * @return - the number of the current move
      */
-    public int getCurrentMove() {
+    public int getCurrentMoveNumber() {
+        return controller.getCurrentMoveNumber();
+    }
+
+    /**
+     * Returns the current move.
+     * 
+     * @return - the current move.
+     */
+    public Move getCurrentMove() {
         return controller.getCurrentMove();
-    }
-
-    /**
-     * Returns additional indicators to be displayed to the user not stored as ranks
-     *
-     * @return - a hashmap mapping the name of the indicator to its position
-     */
-    public HashMap<String, RankPosition> getTransientRanks() {
-        return controller.getTransientRanks();
-    }
-
-    /**
-     * Adds a temporary indicator to show the user how the rank would look if drawn to
-     * the current position
-     *
-     * @param temporaryDrawingRank - the position of the indicator to be drawn
-     */
-    public void addTemporaryDrawingRank(RankPosition temporaryDrawingRank) {
-        controller.addTemporaryDrawingRank(temporaryDrawingRank);
     }
 
     /**
