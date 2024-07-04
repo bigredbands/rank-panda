@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import org.bigredbands.mb.models.CommandPair;
+import org.bigredbands.mb.models.Move;
 import org.bigredbands.mb.models.RankPosition;
 
 /**
@@ -273,26 +274,18 @@ public interface ControllerInterface {
     public void setMoveComment(String comment);
 
     /**
-     * Returns the number of the current move
+     * Returns the number of the current move.
      *
-     * @return - the number of the current move
+     * @return - the number of the current move.
      */
-    public int getCurrentMove();
+    public int getCurrentMoveNumber();
 
     /**
-     * Returns additional indicators to be displayed to the user not stored as ranks
-     *
-     * @return - a hashmap mapping the name of the indicator to its position
+     * Returns the current move.
+     * 
+     * @return - the current move.
      */
-    public HashMap<String, RankPosition> getTransientRanks();
-
-    /**
-     * Adds a temporary indicator to show the user how the rank would look if drawn to
-     * the current position
-     *
-     * @param temporaryDrawingRank - the position of the indicator to be drawn
-     */
-    public void addTemporaryDrawingRank(RankPosition temporaryDrawingRank);
+    public Move getCurrentMove();
 
     public void updateInitialPosition(String rankName, RankPosition newPos);
 

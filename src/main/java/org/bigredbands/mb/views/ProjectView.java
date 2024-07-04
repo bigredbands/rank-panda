@@ -1090,7 +1090,7 @@ public class ProjectView {
         deleteMove.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent arg0) {
-                if(mainView.getCurrentMove()!=0) {
+                if(mainView.getCurrentMoveNumber()!=0) {
                     Object[] options = {"Yes", "No"};
                     int n = JOptionPane.showOptionDialog(getWindow(),
                             "Are you sure you want to delete this move?",
@@ -1100,7 +1100,7 @@ public class ProjectView {
                             null,
                             options,
                             options[0]);
-                    if (n==0) mainView.deleteMove(mainView.getCurrentMove());
+                    if (n==0) mainView.deleteMove(mainView.getCurrentMoveNumber());
                 }
             }
         });
