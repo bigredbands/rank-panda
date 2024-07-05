@@ -115,9 +115,10 @@ public class PDFGenerator {
         float lineSpacing = 1.5f;
 
         // Drill image dimensions
-        // Units are in pixels
-        float imageWidth = drillWidth;
-        float imageHeight = drillHeight;
+        // Units are in pixels, scaled from 72dpi (the units of drillWidth and
+        // drillHeight) to 300dpi.
+        float imageWidth = drillWidth * (300f / 72f);
+        float imageHeight = drillHeight * (300f / 72f);
         Dimension dim = new Dimension((int) imageWidth, (int) imageHeight);
 
         // Initialize iterated variables
