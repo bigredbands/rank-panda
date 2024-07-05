@@ -60,10 +60,18 @@ public class RankPosition {
     }
 
     /**
-     * Returns The midpoint/control point
+     * Returns The midpoint position
      */
     public Point getMidpoint() {
         return midpoint;
+    }
+
+    /**
+     * Returns The control point for this rank (assuming it is a curve)
+     */
+    public Point getCurveControlPoint() {
+        Point linearCenter = front.interpolate(end, 0.5f);
+        return linearCenter.add(midpoint.subtract(linearCenter).multiply(2.0f));
     }
 
     public int getLineType() {
