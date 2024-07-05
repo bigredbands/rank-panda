@@ -34,7 +34,9 @@ public class MoveThumbnail extends FieldView {
             public void mouseExited(MouseEvent arg0) {}
 
             @Override
-            public void mousePressed(MouseEvent arg0) {}
+            public void mousePressed(MouseEvent arg0) {
+                controller.changeMoves(moveNumber);
+            }
 
             @Override
             public void mouseReleased(MouseEvent arg0) {}
