@@ -104,7 +104,7 @@ public class PDFGenerator {
         float pageMarginY = 0.5f * 72f; // 1/2" margin Y (72 units/inch)
 
         float drillWidth = pageWidth - 2 * pageMarginX;
-        float drillHeight = drillWidth / (field.TotalLength / field.Height);
+        float drillHeight = drillWidth / (field.TotalLength / field.TotalHeight);
         float textMarginX = pageMarginX + (field.EndzoneWidth / field.TotalLength) * drillWidth;
 
         // Fonts
