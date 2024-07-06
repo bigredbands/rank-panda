@@ -269,7 +269,7 @@ public class MainView implements ViewInterface {
      * @param errorMessage - the error message to display
      */
     public void displayError(String errorMessage) {
-        new ErrorDialog(errorMessage, getCurrentWindow());
+        ErrorDialog.createErrorDialog(errorMessage, getCurrentWindow());
     }
 
     /**

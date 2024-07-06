@@ -13,7 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 public class ErrorDialog {
-    public ErrorDialog(String errorMessage, JFrame window) {
+    public static void createErrorDialog(String errorMessage, JFrame window) {
         errorMessage = "<html><p>" + errorMessage + "</p></html>";
         final JDialog error = new JDialog(window, "Error");
         error.setSize(400,100);
