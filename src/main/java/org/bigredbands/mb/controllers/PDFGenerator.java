@@ -305,6 +305,7 @@ public class PDFGenerator {
                         contentStream.newLineAtOffset(-((numColumns - 1) * columnWidth), -nextRowOffset);
                         yPosition -= nextRowOffset;
                         newPage = false;
+                        maxLines = 1;
                     } else {
                         contentStream.newLineAtOffset(columnWidth, 0);
                     }
