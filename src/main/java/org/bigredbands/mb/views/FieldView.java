@@ -248,6 +248,13 @@ public abstract class FieldView extends JPanel {
     }
 
     private void drawRank(Graphics2D g, String rankName, RankPosition rank) {
+        // TODO: somewhere in either the rank positioning or the grid snapping
+        // code, there is a 0.6ft error in the y-axis coordinate. If we wanted
+        // to correct for this, we'd add 0.6 to the fieldOffset y-axis value.
+        //
+        // In the future, we should add an option to fix affected .pnd files
+        // automatically so we do not need to adjust here. Since that's the
+        // ideal long-term solution, let's not add the offset here.
         Point fieldOffset = new Point(field.EndzoneWidth, field.SidelineWidth);
 
         // Draw the rank arrow
