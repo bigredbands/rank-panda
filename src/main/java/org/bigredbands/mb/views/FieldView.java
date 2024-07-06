@@ -7,6 +7,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.font.GlyphVector;
 import java.awt.geom.AffineTransform;
@@ -62,10 +63,16 @@ public abstract class FieldView extends JPanel {
 
         Graphics2D g2d = (Graphics2D)g;
         AffineTransform original = g2d.getTransform();
+        RenderingHints originalHints = g2d.getRenderingHints();
 
         // Convert to new coordinate system
         float scaleFactor = getScaleFactor(getSize());
         g2d.scale(scaleFactor, scaleFactor);
+
+        // Set rendering quality settings
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
         drawField(g2d);
         drawFieldLines(g2d);
@@ -73,6 +80,7 @@ public abstract class FieldView extends JPanel {
         drawRanks(g2d);
 
         g2d.setTransform(original);
+        g2d.setRenderingHints(originalHints);
     }
 
     private float getScaleFactor(Dimension container) {
