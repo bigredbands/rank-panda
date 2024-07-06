@@ -257,7 +257,10 @@ public class MainView implements ViewInterface {
         }
 
         for(String rankName : rankNames) {
-            controller.assignCommand(rankName,  newCommand);
+            final String errorMessage = controller.assignCommand(rankName,  newCommand);
+            if (!errorMessage.isEmpty()) {
+                displayError(errorMessage);
+            }
         }
         project.cancelPreviousCommand(type);
         return;
@@ -315,11 +318,16 @@ public class MainView implements ViewInterface {
     }
 
     /**
-     * Sets the currently selected rank
+     * Sets the currently selected rank and updates the view. In the event of an
+     * error, displays the error and does not set the selected rank.
+     * 
      * @param rankName - the currently selected rank
      */
     public void addSelectedRank(String rankName, boolean reset) {
-        controller.addSelectedRank(rankName,reset);
+        final String errorMessage = controller.addSelectedRank(rankName, reset);
+        if (!errorMessage.isEmpty()) {
+            displayError(errorMessage);
+        }
     }
 
     /**
@@ -435,12 +443,17 @@ public class MainView implements ViewInterface {
     }
 
     /**
-     * Add a rank to the project
+     * Adds a new rank to the models and update the view. In the event of an error,
+     * displays the error and does not add the rank.
+     * 
      * @param name - name of the rank
      * @param position - the position of the rank
      */
     public void addRank(String name, RankPosition position) {
-        controller.addRank(name, position);
+        final String errorMessage = controller.addRank(name, position);
+        if (!errorMessage.isEmpty()) {
+            displayError(errorMessage);
+        }
     }
 
     /**
@@ -449,7 +462,10 @@ public class MainView implements ViewInterface {
      * @param commandIndices - the indices of the commands to remove
      */
     public void removeCommands(int[] commandIndices) {
-        controller.removeCommands(commandIndices);
+        final String errorMessage = controller.removeCommands(commandIndices);
+        if (!errorMessage.isEmpty()) {
+            displayError(errorMessage);
+        }
     }
 
     /**
@@ -459,7 +475,10 @@ public class MainView implements ViewInterface {
      * @param name - the new name of the command
      */
     public void renameCommand(int index, String name) {
-        controller.renameCommand(index, name);
+        final String errorMessage = controller.renameCommand(index, name);
+        if (!errorMessage.isEmpty()) {
+            displayError(errorMessage);
+        }
     }
 
     /**
@@ -468,7 +487,10 @@ public class MainView implements ViewInterface {
      * @param commandIndices - the indices of commands to be moved up
      */
     public void moveCommandsUp(int[] commandIndices) {
-        controller.moveCommandsUp(commandIndices);
+        final String errorMessage = controller.moveCommandsUp(commandIndices);
+        if (!errorMessage.isEmpty()) {
+            displayError(errorMessage);
+        }
     }
 
     /**
@@ -477,7 +499,10 @@ public class MainView implements ViewInterface {
      * @param commandIndices - the indices of commands to be moved down
      */
     public void moveCommandsDown(int[] commandIndices) {
-        controller.moveCommandsDown(commandIndices);
+        final String errorMessage = controller.moveCommandsDown(commandIndices);
+        if (!errorMessage.isEmpty()) {
+            displayError(errorMessage);
+        }
     }
 
     /**
@@ -487,7 +512,10 @@ public class MainView implements ViewInterface {
      * @param commandIndices - the indices of commands to be merged
      */
     public void mergeCommands(int[] commandIndices) {
-        controller.mergeCommands(commandIndices);
+        final String errorMessage = controller.mergeCommands(commandIndices);
+        if (!errorMessage.isEmpty()) {
+            displayError(errorMessage);
+        }
     }
 
     /**

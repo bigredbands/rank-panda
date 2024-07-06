@@ -61,12 +61,13 @@ public interface ControllerInterface {
     public boolean isModified();
 
     /**
-     * Adds a new rank to the models and update the view
+     * Adds a new rank to the models and update the view.
      *
-     * @param name - the name of the new rank
-     * @param rankPosition - the position of the new rank
+     * @param name - The name of the new rank
+     * @param rankPosition - The position of the new rank
+     * @return - An error messsge iff adding a rank failed.  An empty string otherwise.
      */
-    public void addRank(String name, RankPosition rankPosition);
+    public String addRank(String name, RankPosition rankPosition);
 
     /**
      * Adds a new move to the list of moves
@@ -109,22 +110,24 @@ public interface ControllerInterface {
     public void changeMoves(int targetMove);
 
     /**
-     * Assigns a command to the given rank in the current move. Displays an
+     * Assigns a command to the given rank in the current move. Returns an
      * error message if it could not add a command to the rank.
      *
-     * @param rankName
-     *            - the rank to add a command to
-     * @param commandPair
-     *            - the command and number of counts
+     * @param rankName    - the rank to add a command to
+     * @param commandPair - the command and number of counts
+     * @return - An error messsge iff assigning the command failed. An empty string
+     *         otherwise.
      */
-    public void assignCommand(String rankName, CommandPair commandPair);
+    public String assignCommand(String rankName, CommandPair commandPair);
 
     /**
-     * Sets the selected rank to the specified rank
+     * Sets the selected rank to the specified rank and updates the view.
      *
      * @param rankName - the rank name of the new selected rank
+     * @return - An error messsge iff setting the selected rank failed. An empty
+     *         string otherwise.
      */
-    public void addSelectedRank(String rankName, boolean reset);
+    public String addSelectedRank(String rankName, boolean reset);
 
     /**
      * Removes any current rank selection
@@ -160,11 +163,14 @@ public interface ControllerInterface {
             HashMap<Integer, Integer> countsHashMap, String songName);
 
     /**
-     * Removes the selected commands from the selected rank for the current move
+     * Removes the selected commands from the selected rank for the current move and
+     * updates the display.
      *
      * @param commandIndices - the index of commands to be removed
+     * @return - An error messsge iff removing the command failed. An empty string
+     *         otherwise.
      */
-    public void removeCommands(int[] commandIndices);
+    public String removeCommands(int[] commandIndices);
 
     /**
      * Gets the tempo changes throughout this song
@@ -214,34 +220,46 @@ public interface ControllerInterface {
     public HashMap<String, RankPosition> getPlaybackPositions();
 
     /**
-     * Rename the specified command to a new name, but keep the same functionality
+     * Renames the specified command to a new name, but keep the same functionality.
+     * Updates the display afterwards.
      *
      * @param index - the index of the command to be renamed
-     * @param name - the new name of the command
+     * @param name  - the new name of the command
+     * @return - An error messsge iff renaming the command failed. An empty string
+     *         otherwise.
      */
-    public void renameCommand(int index, String name);
+    public String renameCommand(int index, String name);
 
     /**
-     * Moves the specified commands up in the queue of commands
+     * Moves the specified commands up in the queue of commands. Updates the display
+     * afterwards.
      *
      * @param commandIndices - the indices of commands to be moved up
+     * @return - An error messsge iff moving the command failed. An empty string
+     *         otherwise.
      */
-    public void moveCommandsUp(int[] commandIndices);
+    public String moveCommandsUp(int[] commandIndices);
 
     /**
-     * Moves the specified commands down in the queue of commands
+     * Moves the specified commands down in the queue of commands. Updates the
+     * display afterwards.
      *
      * @param commandIndices - the indices of commands to be moved down
+     * @return - An error messsge iff moving the command failed. An empty string
+     *         otherwise.
      */
-    public void moveCommandsDown(int[] commandIndices);
+    public String moveCommandsDown(int[] commandIndices);
 
     /**
      * Merges the specified commands if they are of the same type
-     * into one command of their combined length
+     * into one command of their combined length.  Updates the
+     * display afterwards.
      *
      * @param commandIndices - the indices of commands to be merged
+     * @return - An error messsge iff merging the command failed. An empty string
+     *         otherwise.
      */
-    public void mergeCommands(int[] commandIndices);
+    public String mergeCommands(int[] commandIndices);
 
     /**
      * Splits the specified command into two separate commands of the same type
