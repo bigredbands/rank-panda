@@ -3,7 +3,6 @@ package org.bigredbands.mb.views;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Dialog.ModalityType;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -165,16 +164,21 @@ public class CommandListView {
         final int[] selectedIndices = commandJList.getSelectedIndices();
 
         if (selectedIndices.length > 0) {
+            final String canSplitErrorMessage = mainView.canSplit(selectedIndices[0]);
+            if (!canSplitErrorMessage.isEmpty()) {
+                mainView.displayError(canSplitErrorMessage);
+                return;
+            }
+
             final JDialog splitDialog = new JDialog(window, "Split Command");
-            splitDialog.setMinimumSize(new Dimension(350,180));
-            splitDialog.setSize(350,180);
+            splitDialog.setMinimumSize(new Dimension(350, 215));
+            splitDialog.setSize(350, 215);
             splitDialog.setAlwaysOnTop(true);
             splitDialog.setLocationRelativeTo(window);
             splitDialog.setModalityType(ModalityType.APPLICATION_MODAL);
 
             JPanel splitPanel = new JPanel();
             splitPanel.setLayout(new BoxLayout(splitPanel, BoxLayout.Y_AXIS));
-
 
             String splitText = "<html>You are splitting:<br /><br />" + listModel.get(selectedIndices[0]) + "<br /><br />Please specify the number of counts to split at.<br /><br /></html>";
             JLabel splitLabel = new JLabel("<html><div style=\"text-align: center;\">" + splitText + "</html>");
@@ -183,12 +187,11 @@ public class CommandListView {
             splitLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
             final JTextField countTextField = new JTextField();
-            countTextField.setPreferredSize(new Dimension(150,25));
-            countTextField.setMaximumSize(new Dimension(150,25));
+            countTextField.setPreferredSize(new Dimension(150, 25));
+            countTextField.setMaximumSize(new Dimension(150, 25));
 
             countTextField.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-            final String warningText = "";
             final JLabel warningLabel = new JLabel("<html><div style=\"text-align: center;\"></html>");
 
             JPanel buttonPanel = new JPanel();
@@ -201,7 +204,7 @@ public class CommandListView {
                     String countString = countTextField.getText();
                     if (countString.equals("")) {
                         warningLabel.setText("Please specify rank name");
-//                        warningText = "Please specify rank name.";
+                        //warningText = "Please specify rank name.";
                         //splitDialog.setVisible(true);
                         return;
                     }

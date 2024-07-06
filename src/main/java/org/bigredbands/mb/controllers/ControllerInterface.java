@@ -262,14 +262,23 @@ public interface ControllerInterface {
     public String mergeCommands(int[] commandIndices);
 
     /**
-     * Splits the specified command into two separate commands of the same type
-     * at the count specified
+     * Splits the specified command at the given index into two separate commands of
+     * the same type at the count specified. Updates the display afterwards.
      *
      * @param index - the index of command to be split
      * @param count - the count at which the command will be split
      * @return - An error message if one occurs
      */
     public String splitCommand(int index, int count);
+
+    /**
+     * Returns an error string if the command at the given index cannot be split.
+     * Otherwise, returns an empty string.
+     * 
+     * @param index - The index of the command to split.
+     * @return - An error string if the command at the given index cannot be split.
+     */
+    public String canSplit(int index);
 
     /**
      * Exports the project to a PDF file

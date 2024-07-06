@@ -517,7 +517,19 @@ public class MainView implements ViewInterface {
             displayError(errorMessage);
         }
     }
-
+    
+    /**
+     * Returns an error string if the command at the given index cannot be split.
+     * Otherwise, returns an empty string.
+     * 
+     * @param index - The index of the command to split.
+     * @return - An error string if the command at the given index cannot be split.
+     */
+    public String canSplit(int index) {
+        // Displaying the error message is handled by the split view logic
+        return controller.canSplit(index);
+    }
+    
     /**
      * Splits the specified command into two separate commands of the same type
      * at the count specified
@@ -527,6 +539,7 @@ public class MainView implements ViewInterface {
      * @return - An error message if one occurs
      */
     public String splitCommand(int index, int count) {
+        // Displaying the error message is handled by the split view logic
         return controller.splitCommand(index, count);
     }
 

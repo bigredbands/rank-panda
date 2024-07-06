@@ -1023,8 +1023,31 @@ public class MainController implements ControllerInterface, SynchronizedControll
     }
 
     /**
-     * Splits the specified command into two separate commands of the same type
-     * at the count specified
+     * Returns true if the command at the given index can be split.  False otherwise.
+     * 
+     * @param index - The index of the command to split.
+     * @return - True if the command at the given index can be split.  False otherwise.
+     */
+    @Override
+    public String canSplit(int index) {
+        final HashMap<String,ArrayList<CommandPair>> allCommands = drillInfo.getMoves().get(currentMove).getCommands();
+        final ArrayList<CommandPair> sharedCommands = getSharedCommands(selectedRanks, allCommands);
+        return canSplit(index, sharedCommands);
+    }
+
+    private String canSplit(int index, ArrayList<CommandPair> sharedCommands) {
+        if (sharedCommands.get(index).getCommand() == CommandPair.EMPTY) {
+            return "Cannot split mixed command";
+        }
+        if (sharedCommands.get(index).getCommand() == CommandPair.DTP) {
+            return "Cannot split DTP command";
+        }
+        return "";
+    }
+
+    /**
+     * Splits the specified command at the given index into two separate commands of
+     * the same type at the count specified. Updates the display afterwards.
      *
      * @param index - the index of command to be split
      * @param count - the count at which the command will be split
@@ -1035,18 +1058,12 @@ public class MainController implements ControllerInterface, SynchronizedControll
         HashMap<String,ArrayList<CommandPair>> allCommands = drillInfo.getMoves().get(currentMove).getCommands();
         ArrayList<CommandPair> sharedCommands = getSharedCommands(selectedRanks, allCommands);
 
+        final String canSplitErrorMessage = canSplit(index, sharedCommands);
+        if (!canSplitErrorMessage.isEmpty()) {
+            return canSplitErrorMessage;
+        }
         if (count >= sharedCommands.get(index).getCounts()) {
             return "The specified count was larger than counts in the move.";
-        }
-
-        if (sharedCommands.get(index).getCommand() == CommandPair.EMPTY) {
-            mainView.displayError("Cannot split mixed command");
-            return "";
-        }
-
-        if (sharedCommands.get(index).getCommand() == CommandPair.DTP) {
-            mainView.displayError("Cannot split DTP command");
-            return "";
         }
 
         for (String rankName : selectedRanks) {
@@ -1059,20 +1076,17 @@ public class MainController implements ControllerInterface, SynchronizedControll
                     rankIndex = i;
                     break;
                 } else if (countsToIndex < 0) {
-                    mainView.displayError("Something went wrong! Could not rename rank.");
-                    return "";
+                    return "Something went wrong! Could not split the command.";
                 }
                 countsToIndex -= allCommands.get(rankName).get(i).getCounts();
             }
 
-            String errorMessage = drillInfo.getMoves().get(currentMove).splitCommand(rankName, rankIndex, count);
-            if (errorMessage.isEmpty()) {
-                modified = true;
-                mainView.updateSelectedRank(selectedRanks);
+            final String errorMessage = drillInfo.getMoves().get(currentMove).splitCommand(rankName, rankIndex, count);
+            if (!errorMessage.isEmpty()) {
+                return errorMessage;
             }
-            else {
-                mainView.displayError(errorMessage);
-            }
+            modified = true;
+            mainView.updateSelectedRank(selectedRanks);
         }
 
         return "";

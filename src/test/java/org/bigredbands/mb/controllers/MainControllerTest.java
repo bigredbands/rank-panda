@@ -59,7 +59,7 @@ public class MainControllerTest {
         // initially set to false.
         final File testFile = new File("src/test/resources/MainController/two-moves-one-rank-with-commands.pnd");
         mainController.loadProject(testFile);
-        Assert.assertEquals("",  mainController.addSelectedRank("A", true));
+        Assert.assertEquals("", mainController.addSelectedRank("A", true));
         Assert.assertFalse(mainController.isModified());
     }
 
@@ -157,7 +157,7 @@ public class MainControllerTest {
         final File testFile = new File("src/test/resources/MainController/two-moves-one-rank-with-commands.pnd");
         mainController.loadProject(testFile);
         mainController.changeMoves(1);
-        Assert.assertEquals("",  mainController.addSelectedRank("A", true));
+        Assert.assertEquals("", mainController.addSelectedRank("A", true));
         Assert.assertEquals("", mainController.removeCommands(new int[] { 2 }));
         Assert.assertTrue(mainController.isModified());
     }
@@ -233,8 +233,8 @@ public class MainControllerTest {
         final File testFile = new File("src/test/resources/MainController/two-moves-one-rank-with-commands.pnd");
         mainController.loadProject(testFile);
         mainController.changeMoves(1);
-        Assert.assertEquals("",  mainController.addSelectedRank("A", true));
-        mainController.splitCommand(0, 4);
+        Assert.assertEquals("", mainController.addSelectedRank("A", true));
+        Assert.assertEquals("", mainController.splitCommand(0, 4));
         Assert.assertTrue(mainController.isModified());
     }
 }
