@@ -104,7 +104,7 @@ public class PDFGenerator {
         float pageMarginY = 0.5f * 72f; // 1/2" margin Y (72 units/inch)
 
         float drillWidth = pageWidth - 2 * pageMarginX;
-        float drillHeight = drillWidth / (field.TotalLength / field.Height);
+        float drillHeight = drillWidth / (field.TotalLength / field.TotalHeight);
         float textMarginX = pageMarginX + (field.EndzoneWidth / field.TotalLength) * drillWidth;
 
         // Fonts
@@ -115,13 +115,11 @@ public class PDFGenerator {
         float lineSpacing = 1.5f;
 
         // Drill image dimensions
-        // Units are in pixels
-        float imageWidth = drillWidth;
-        float imageHeight = drillHeight;
+        // Units are in pixels, scaled from 72dpi (the units of drillWidth and
+        // drillHeight) to 300dpi.
+        float imageWidth = drillWidth * (300f / 72f);
+        float imageHeight = drillHeight * (300f / 72f);
         Dimension dim = new Dimension((int) imageWidth, (int) imageHeight);
-
-        // Conversion factor
-        float ftToPx = imageWidth / field.TotalLength;
 
         // Initialize iterated variables
         int pageNumber = 1; // page number
@@ -188,7 +186,7 @@ public class PDFGenerator {
             yPosition -= lineSpacing * fontSize;
 
             // add image to PDF
-            PdfImage image = new PdfImage(ftToPx * 3.0f, dim, move.getEndPositions());
+            PdfImage image = new PdfImage(field, move.getEndPositions());
             image.setPreferredSize(dim);
             image.setSize(dim);
             BufferedImage bi = createImage(image);
