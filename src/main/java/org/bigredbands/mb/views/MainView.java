@@ -1,18 +1,17 @@
 package org.bigredbands.mb.views;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.bigredbands.mb.controllers.ControllerInterface;
 import org.bigredbands.mb.models.CommandPair;
+import org.bigredbands.mb.models.Move;
 import org.bigredbands.mb.models.RankPosition;
 import org.bigredbands.mb.exceptions.FileSelectionException;
 
@@ -179,13 +178,31 @@ public class MainView implements ViewInterface {
     }
 
     /**
+     * Updates the selected rank text and the currently displayed commands on the screen.
+     * The commands for the given rank names are displayed.
+     *
+     * @param rankName - the rank name to display
+     */
+    @Override
+    public void updateSelectedRank(HashSet<String> rankNames) {
+        updateSelectedRank(rankNames, controller.getSharedCommands(rankNames, controller.getCurrentMove().getCommands()));
+    }
+
+    /**
+     * Clears the select rank text and the currently displayed commands on the screen.
+     */
+    @Override
+    public void clearSelectedRank() {
+        updateSelectedRank(new HashSet<String>(), new ArrayList<CommandPair>());
+    }
+
+    /**
      * Updates the selected rank text on the screen and the currently displayed commands.
      *
      * @param rankName - the rank name to display
      * @param commands - the commands to display in the command list.
      */
-    @Override
-    public void updateSelectedRank(HashSet<String>rankNames, ArrayList<CommandPair> commands) {
+    private void updateSelectedRank(HashSet<String> rankNames, ArrayList<CommandPair> commands) {
         project.updateSelectedRank(rankNames);
         project.updateCommandList(commands);
         updateProjectTitle();
@@ -240,7 +257,10 @@ public class MainView implements ViewInterface {
         }
 
         for(String rankName : rankNames) {
-            controller.assignCommand(rankName,  newCommand);
+            final String errorMessage = controller.assignCommand(rankName,  newCommand);
+            if (!errorMessage.isEmpty()) {
+                displayError(errorMessage);
+            }
         }
         project.cancelPreviousCommand(type);
         return;
@@ -252,7 +272,7 @@ public class MainView implements ViewInterface {
      * @param errorMessage - the error message to display
      */
     public void displayError(String errorMessage) {
-        new ErrorDialog(errorMessage, getCurrentWindow());
+        ErrorDialog.createErrorDialog(errorMessage, getCurrentWindow());
     }
 
     /**
@@ -298,11 +318,16 @@ public class MainView implements ViewInterface {
     }
 
     /**
-     * Sets the currently selected rank
+     * Sets the currently selected rank and updates the view. In the event of an
+     * error, displays the error and does not set the selected rank.
+     * 
      * @param rankName - the currently selected rank
      */
     public void addSelectedRank(String rankName, boolean reset) {
-        controller.addSelectedRank(rankName,reset);
+        final String errorMessage = controller.addSelectedRank(rankName, reset);
+        if (!errorMessage.isEmpty()) {
+            displayError(errorMessage);
+        }
     }
 
     /**
@@ -418,12 +443,17 @@ public class MainView implements ViewInterface {
     }
 
     /**
-     * Add a rank to the project
+     * Adds a new rank to the models and update the view. In the event of an error,
+     * displays the error and does not add the rank.
+     * 
      * @param name - name of the rank
      * @param position - the position of the rank
      */
     public void addRank(String name, RankPosition position) {
-        controller.addRank(name, position);
+        final String errorMessage = controller.addRank(name, position);
+        if (!errorMessage.isEmpty()) {
+            displayError(errorMessage);
+        }
     }
 
     /**
@@ -432,7 +462,10 @@ public class MainView implements ViewInterface {
      * @param commandIndices - the indices of the commands to remove
      */
     public void removeCommands(int[] commandIndices) {
-        controller.removeCommands(commandIndices);
+        final String errorMessage = controller.removeCommands(commandIndices);
+        if (!errorMessage.isEmpty()) {
+            displayError(errorMessage);
+        }
     }
 
     /**
@@ -442,7 +475,10 @@ public class MainView implements ViewInterface {
      * @param name - the new name of the command
      */
     public void renameCommand(int index, String name) {
-        controller.renameCommand(index, name);
+        final String errorMessage = controller.renameCommand(index, name);
+        if (!errorMessage.isEmpty()) {
+            displayError(errorMessage);
+        }
     }
 
     /**
@@ -451,7 +487,10 @@ public class MainView implements ViewInterface {
      * @param commandIndices - the indices of commands to be moved up
      */
     public void moveCommandsUp(int[] commandIndices) {
-        controller.moveCommandsUp(commandIndices);
+        final String errorMessage = controller.moveCommandsUp(commandIndices);
+        if (!errorMessage.isEmpty()) {
+            displayError(errorMessage);
+        }
     }
 
     /**
@@ -460,7 +499,10 @@ public class MainView implements ViewInterface {
      * @param commandIndices - the indices of commands to be moved down
      */
     public void moveCommandsDown(int[] commandIndices) {
-        controller.moveCommandsDown(commandIndices);
+        final String errorMessage = controller.moveCommandsDown(commandIndices);
+        if (!errorMessage.isEmpty()) {
+            displayError(errorMessage);
+        }
     }
 
     /**
@@ -470,9 +512,24 @@ public class MainView implements ViewInterface {
      * @param commandIndices - the indices of commands to be merged
      */
     public void mergeCommands(int[] commandIndices) {
-        controller.mergeCommands(commandIndices);
+        final String errorMessage = controller.mergeCommands(commandIndices);
+        if (!errorMessage.isEmpty()) {
+            displayError(errorMessage);
+        }
     }
-
+    
+    /**
+     * Returns an error string if the command at the given index cannot be split.
+     * Otherwise, returns an empty string.
+     * 
+     * @param index - The index of the command to split.
+     * @return - An error string if the command at the given index cannot be split.
+     */
+    public String canSplit(int index) {
+        // Displaying the error message is handled by the split view logic
+        return controller.canSplit(index);
+    }
+    
     /**
      * Splits the specified command into two separate commands of the same type
      * at the count specified
@@ -482,6 +539,7 @@ public class MainView implements ViewInterface {
      * @return - An error message if one occurs
      */
     public String splitCommand(int index, int count) {
+        // Displaying the error message is handled by the split view logic
         return controller.splitCommand(index, count);
     }
 
@@ -570,27 +628,17 @@ public class MainView implements ViewInterface {
      *
      * @return - the number of the current move
      */
-    public int getCurrentMove() {
+    public int getCurrentMoveNumber() {
+        return controller.getCurrentMoveNumber();
+    }
+
+    /**
+     * Returns the current move.
+     * 
+     * @return - the current move.
+     */
+    public Move getCurrentMove() {
         return controller.getCurrentMove();
-    }
-
-    /**
-     * Returns additional indicators to be displayed to the user not stored as ranks
-     *
-     * @return - a hashmap mapping the name of the indicator to its position
-     */
-    public HashMap<String, RankPosition> getTransientRanks() {
-        return controller.getTransientRanks();
-    }
-
-    /**
-     * Adds a temporary indicator to show the user how the rank would look if drawn to
-     * the current position
-     *
-     * @param temporaryDrawingRank - the position of the indicator to be drawn
-     */
-    public void addTemporaryDrawingRank(RankPosition temporaryDrawingRank) {
-        controller.addTemporaryDrawingRank(temporaryDrawingRank);
     }
 
     /**

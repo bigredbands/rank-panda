@@ -36,13 +36,6 @@ public class MainController implements ControllerInterface, SynchronizedControll
     // The main model which stores the ranks and moves for the project
     private DrillInfo drillInfo;
 
-    // Additional visual indicators to be displayed to the user, but not stored as ranks
-    private HashMap<String, RankPosition> transientRanks;
-
-    // The name of the indicator used to show the user how their rank will look if drawn
-    // at the mouse's current position
-    public static final String TEMP_DRAWING_RANK = "TEMP_DRAWING_RANK";
-
     // The number of the current move
     private int currentMove;
 
@@ -114,7 +107,6 @@ public class MainController implements ControllerInterface, SynchronizedControll
     public MainController() {
         fileUrl = "";
         drillInfo = new DrillInfo();
-        transientRanks = new HashMap<String, RankPosition>();
         currentMove = 0;
         selectedRanks.clear();
     }
@@ -262,14 +254,11 @@ public class MainController implements ControllerInterface, SynchronizedControll
      * Returns each of the rank's name and corresponding position at the
      * specified move number
      *
-     * @param moveNumber
-     *            - the move number of which to get the rank names and positions
+     * @param moveNumber - the move number of which to get the rank names and positions
      * @return - a hashmap mapping each rank name to its position
      */
     @Override
     public HashMap<String, RankPosition> getRankPositions(int moveNumber) {
-        //TODO for Dave: Sanity check moveNumber to see if it actually exists
-        //TODO: thanks Dave! -Victoria
         if(moveNumber >= 0 && moveNumber < getNumberOfMoves()) {
             return drillInfo.getMoves().get(moveNumber).getEndPositions();
         } else {
@@ -293,7 +282,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
         drillInfo.addMove(counts, currentMove + 1);
         currentMove = currentMove + 1;
         if (!selectedRanks.isEmpty()) {
-            mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
+            mainView.updateSelectedRank(selectedRanks);
         }
         modified = true;
         mainView.updateViewWithOneMove(drillInfo.getMoves().size() - 1, drillInfo.getMoves().get(drillInfo.getMoves().size() - 1).getCounts());
@@ -319,7 +308,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
         }
 
         if (!selectedRanks.isEmpty()) {
-            mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
+            mainView.updateSelectedRank(selectedRanks);
         }
         modified = true;
         mainView.updateViewWithRemoveMove(currentMove, drillInfo.getMoves().get(currentMove).getCounts(),moveNum);
@@ -345,32 +334,35 @@ public class MainController implements ControllerInterface, SynchronizedControll
         if (targetMove != currentMove) {
             currentMove = targetMove;
             if (!selectedRanks.isEmpty()) {
-                mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks, drillInfo.getMoves().get(currentMove).getCommands()));
+                mainView.updateSelectedRank(selectedRanks);
             }
             mainView.updateView(currentMove, drillInfo.getMoves().get(currentMove).getCounts());
         }
     }
 
     /**
-     * Adds a new rank to the models and update the view
+     * Adds a new rank to the models and update the view.
      *
-     * @param name - the name of the new rank
-     * @param rankPosition - the position of the new rank
+     * @param name - The name of the new rank
+     * @param rankPosition - The position of the new rank
+     * @return - An error messsge iff adding a rank failed. An empty string
+     *         otherwise.
      */
     @Override
-    public void addRank(String rankName, RankPosition rankPosition) {
-        String errorMessage = drillInfo.addRankToMoves(rankName, rankPosition);
-        if (errorMessage.isEmpty()) {
-            // TODO: maybe not clear? idk
-            selectedRanks.clear();
-            selectedRanks.add(rankName);
-            modified = true;
-            mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
-            mainView.updateView(currentMove, drillInfo.getMoves().get(currentMove).getCounts());
+    public String addRank(String rankName, RankPosition rankPosition) {
+        final String errorMessage = drillInfo.addRankToMoves(rankName, rankPosition);
+        if (!errorMessage.isEmpty()) {
+            return errorMessage;
+            
         }
-        else {
-            mainView.displayError(errorMessage);
-        }
+
+        selectedRanks.clear();
+        selectedRanks.add(rankName);
+        modified = true;
+        mainView.updateSelectedRank(selectedRanks);
+        mainView.updateView(currentMove, drillInfo.getMoves().get(currentMove).getCounts());
+        return "";
+
     }
 
     public void updateInitialPosition(String rankName, RankPosition newPos) {
@@ -379,7 +371,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
 
     }
 
-    private ArrayList<CommandPair> getSharedCommands(HashSet<String> rankNames, HashMap<String,ArrayList<CommandPair>>commands) {
+    public ArrayList<CommandPair> getSharedCommands(HashSet<String> rankNames, HashMap<String,ArrayList<CommandPair>>commands) {
         if(rankNames.size()==0) {
             return new ArrayList<CommandPair>();
         }
@@ -408,7 +400,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
                             if (altCmd.getCounts() == refCmd.getCounts()
                                     && altCmd.getCommand() == refCmd.getCommand()) {
                                 if (i == rankArray.length - 1) {
-                                    if (diffCounts != 0) shared.add(new CommandPair(32, diffCounts));
+                                    if (diffCounts != 0) shared.add(new CommandPair(CommandPair.EMPTY, diffCounts));
                                     diffCounts = 0;
 
                                     shared.add(new CommandPair(refCmd.getCommand(), refCmd.getCounts()));
@@ -457,7 +449,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
 
             diffCounts = (maxLen - sharedLen);
 
-            if (diffCounts > 0) shared.add(new CommandPair(32, diffCounts));
+            if (diffCounts > 0) shared.add(new CommandPair(CommandPair.EMPTY, diffCounts));
 
             return shared;
         }
@@ -465,7 +457,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
 
     /**
      * Using the end position of the current move and the commands of all subsequent moves for a rank, updates the start and
-     * end positions of each move based on the current move.  Useful for when the commands of an middle move are
+     * end positions of each move based on the current move.  Useful for when the commands of a middle move are
      * changed and the later moves need to have their positions updated.
      * @param rankName - the rank whose positions need to be updated.
      */
@@ -477,34 +469,36 @@ public class MainController implements ControllerInterface, SynchronizedControll
         //TODO: may not be necessary later when you have to select ranks by clicking on them first
         selectedRanks.add(rankName);
         modified = true;
-        mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
+        mainView.updateSelectedRank(selectedRanks);
         mainView.updateView(currentMove, drillInfo.getMoves().get(currentMove).getCounts());
     }
 
     /**
-     * Sets the selected rank to the specified rank
+     * Sets the selected rank to the specified rank and updates the view.
      *
      * @param rankName - the rank name of the new selected rank
+     * @return - An error messsge iff setting the selected rank failed. An empty
+     *         string otherwise.
      */
     @Override
-    public void addSelectedRank(String rankName, boolean reset) {
-        if (drillInfo.doesRankExist(rankName)) {
-            if(reset) {
-                selectedRanks.clear();
-            }
+    public String addSelectedRank(String rankName, boolean reset) {
+        if (!drillInfo.doesRankExist(rankName)) {
+            return "The selected rank does not exist";
+        }
 
-            // TODO: decide what's more important: deselection from group, or ability to drag a group
-            // if (selectedRanks.contains(rankName)) {
-            //     selectedRanks.remove(rankName);
-            // } else {
-            selectedRanks.add(rankName);
-            // }
-            mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
-            mainView.updateView(currentMove, drillInfo.getMoves().get(currentMove).getCounts());
+        if (reset) {
+            selectedRanks.clear();
         }
-        else {
-            mainView.displayError("The selected rank does not exist");
-        }
+
+        // TODO: decide what's more important: deselection from group, or ability to drag a group
+        // if (selectedRanks.contains(rankName)) {
+        //     selectedRanks.remove(rankName);
+        // } else {
+        selectedRanks.add(rankName);
+        // }
+        mainView.updateSelectedRank(selectedRanks);
+        mainView.updateView(currentMove, drillInfo.getMoves().get(currentMove).getCounts());
+        return "";
     }
 
     /**
@@ -513,7 +507,7 @@ public class MainController implements ControllerInterface, SynchronizedControll
      */
     public void deselectAll() {
         selectedRanks.clear();
-        mainView.updateSelectedRank(new HashSet<String>(), new ArrayList<CommandPair>());
+        mainView.clearSelectedRank();
         mainView.updateView(currentMove, drillInfo.getMoves().get(currentMove).getCounts());
     }
 
@@ -530,24 +524,21 @@ public class MainController implements ControllerInterface, SynchronizedControll
     /**
      * Deletes the specified rank
      *
-     * @param rankName - the name of the rank to be deleted
+     * @param rankNames - the names of the ranks to be deleted
      */
     @Override
-    public void deleteRank(HashSet<String>rankNames) {
+    public void deleteRank(HashSet<String> rankNames) {
         HashSet<String> oldSelectedRanks = (HashSet<String>)rankNames.clone();
 
         for(String rankName : oldSelectedRanks) {
             drillInfo.deleteRank(rankName);
             if (selectedRanks.contains(rankName)) {
                 selectedRanks.remove(rankName);
-                mainView.updateSelectedRank(new HashSet<String>(), new ArrayList<CommandPair>());
-            }
-            else {
-                mainView.updateSelectedRank(selectedRanks, drillInfo.getMoves().get(currentMove).getCommands().get(rankName));
             }
         }
 
         modified = true;
+        mainView.updateSelectedRank(selectedRanks);
         mainView.updateView(currentMove, drillInfo.getMoves().get(currentMove).getCounts());
     }
 
@@ -771,40 +762,41 @@ public class MainController implements ControllerInterface, SynchronizedControll
     }
 
     /**
-     * Assigns a command to the given rank in the current move. Displays an
+     * Assigns a command to the given rank in the current move. Returns an
      * error message if it could not add a command to the rank.
      *
-     * @param rankName
-     *            - the rank to add a command to
-     * @param commandPair
-     *            - the command and number of counts
+     * @param rankName    - the rank to add a command to
+     * @param commandPair - the command and number of counts
+     * @return - An error messsge iff assigning the command failed. An empty string
+     *         otherwise.
      */
     @Override
-    public void assignCommand(String rankName, CommandPair commandPair){
-        String errorMessage = drillInfo.getMoves().get(currentMove).addCommand(rankName, commandPair);
-        if (errorMessage.isEmpty()) {
-            updatePositions(rankName);
+    public String assignCommand(String rankName, CommandPair commandPair){
+        final String errorMessage = drillInfo.getMoves().get(currentMove).addCommand(rankName, commandPair);
+        if (!errorMessage.isEmpty()) {
+            return errorMessage;
         }
-        else {
-            mainView.displayError(errorMessage);
-        }
+        updatePositions(rankName);
+        return "";
     }
 
     /**
-     * Removes the selected commands from the selected rank for the current move
+     * Removes the selected commands from the selected rank for the current move and
+     * updates the display.
      *
-     * @param commandIndices - the index of commands to be removed (in the SHARED list)
+     * @param commandIndices - the index of commands to be removed
+     * @return - An error messsge iff removing the command failed. An empty string
+     *         otherwise.
      */
     @Override
-    public void removeCommands(int[] commandIndices) {
+    public String removeCommands(int[] commandIndices) {
         HashMap<String,ArrayList<CommandPair>> allCommands = drillInfo.getMoves().get(currentMove).getCommands();
         ArrayList<CommandPair> sharedCommands = getSharedCommands(selectedRanks, allCommands);
 
         for (int indx : commandIndices) {
-            if (sharedCommands.get(indx).getCommand() == 32) {
+            if (sharedCommands.get(indx).getCommand() == CommandPair.EMPTY) {
                 // If any of the requested commands are a mixed one, return an error and delete nothing
-                mainView.displayError("Cannot delete mixed command");
-                return;
+                return "Cannot delete mixed command";
             }
         }
 
@@ -820,37 +812,38 @@ public class MainController implements ControllerInterface, SynchronizedControll
                         rankIndices[j] = i;
                         break;
                     } else if (countsToIndex < 0) {
-                        mainView.displayError("Something went wrong! Could not remove commands.");
-                        return;
+                        return "Something went wrong! Could not remove commands.";
                     }
                     countsToIndex -= allCommands.get(rankName).get(i).getCounts();
                 }
             }
 
-            String errorMessage = drillInfo.getMoves().get(currentMove).removeCommands(rankName, rankIndices);
-            if (errorMessage.isEmpty()) {
-                updatePositions(rankName);
+            final String errorMessage = drillInfo.getMoves().get(currentMove).removeCommands(rankName, rankIndices);
+            if (!errorMessage.isEmpty()) {
+                return errorMessage;
             }
-            else {
-                mainView.displayError(errorMessage);
-            }
+            updatePositions(rankName);
         }
+
+        return "";
     }
 
     /**
-     * Rename the specified command to a new name, but keep the same functionality
+     * Renames the specified command to a new name, but keep the same functionality.
+     * Updates the display afterwards.
      *
      * @param index - the index of the command to be renamed
-     * @param name - the new name of the command
+     * @param name  - the new name of the command
+     * @return - An error messsge iff renaming the command failed. An empty string
+     *         otherwise.
      */
     @Override
-    public void renameCommand(int index, String name) {
+    public String renameCommand(int index, String name) {
         HashMap<String,ArrayList<CommandPair>> allCommands = drillInfo.getMoves().get(currentMove).getCommands();
         ArrayList<CommandPair> sharedCommands = getSharedCommands(selectedRanks, allCommands);
 
-        if (sharedCommands.get(index).getCommand() == 32) {
-            mainView.displayError("Cannot rename mixed command");
-            return;
+        if (sharedCommands.get(index).getCommand() == CommandPair.EMPTY) {
+            return "Cannot rename mixed command";
         }
 
         for (String rankName : selectedRanks) {
@@ -863,37 +856,38 @@ public class MainController implements ControllerInterface, SynchronizedControll
                     rankIndex = i;
                     break;
                 } else if (countsToIndex < 0) {
-                    mainView.displayError("Something went wrong! Could not rename command.");
-                    return;
+                    return "Something went wrong! Could not rename command.";
                 }
                 countsToIndex -= allCommands.get(rankName).get(i).getCounts();
             }
 
-            String errorMessage = drillInfo.getMoves().get(currentMove).renameCommand(rankName, rankIndex, name);
-            if (errorMessage.isEmpty()) {
-                modified = true;
-                mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
+            final String errorMessage = drillInfo.getMoves().get(currentMove).renameCommand(rankName, rankIndex, name);
+            if (!errorMessage.isEmpty()) {
+                return errorMessage;
             }
-            else {
-                mainView.displayError(errorMessage);
-            }
+            modified = true;
+            mainView.updateSelectedRank(selectedRanks);
         }
+
+        return "";
     }
 
     /**
-     * Moves the specified commands up in the queue of commands
+     * Moves the specified commands up in the queue of commands. Updates the display
+     * afterwards.
      *
      * @param commandIndices - the indices of commands to be moved up
+     * @return - An error messsge iff moving the command failed. An empty string
+     *         otherwise.
      */
     @Override
-    public void moveCommandsUp(int[] commandIndices) {
+    public String moveCommandsUp(int[] commandIndices) {
         HashMap<String,ArrayList<CommandPair>> allCommands = drillInfo.getMoves().get(currentMove).getCommands();
         ArrayList<CommandPair> sharedCommands = getSharedCommands(selectedRanks, allCommands);
 
         for (int indx : commandIndices) {
-            if (sharedCommands.get(indx).getCommand() == 32) {
-                mainView.displayError("Cannot move mixed command up");
-                return;
+            if (sharedCommands.get(indx).getCommand() == CommandPair.EMPTY) {
+                return "Cannot move mixed command up";
             }
         }
 
@@ -909,38 +903,39 @@ public class MainController implements ControllerInterface, SynchronizedControll
                         rankIndices[j] = i;
                         break;
                     } else if (countsToIndex < 0) {
-                        mainView.displayError("Something went wrong! Could not move commands up.");
-                        return;
+                        return "Something went wrong! Could not move commands up.";
                     }
                     countsToIndex -= allCommands.get(rankName).get(i).getCounts();
                 }
             }
 
-            String errorMessage = drillInfo.getMoves().get(currentMove).moveCommandsUp(rankName, rankIndices);
-            if (errorMessage.isEmpty()) {
-                modified = true;
-                mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
+            final String errorMessage = drillInfo.getMoves().get(currentMove).moveCommandsUp(rankName, rankIndices);
+            if (!errorMessage.isEmpty()) {
+                return errorMessage;
             }
-            else {
-                mainView.displayError(errorMessage);
-            }
+            modified = true;
+            mainView.updateSelectedRank(selectedRanks);
         }
+
+        return "";
     }
 
     /**
-     * Moves the specified commands down in the queue of commands
+     * Moves the specified commands down in the queue of commands. Updates the
+     * display afterwards.
      *
      * @param commandIndices - the indices of commands to be moved down
+     * @return - An error messsge iff moving the command failed. An empty string
+     *         otherwise.
      */
     @Override
-    public void moveCommandsDown(int[] commandIndices) {
+    public String moveCommandsDown(int[] commandIndices) {
         HashMap<String,ArrayList<CommandPair>> allCommands = drillInfo.getMoves().get(currentMove).getCommands();
         ArrayList<CommandPair> sharedCommands = getSharedCommands(selectedRanks, allCommands);
 
         for (int indx : commandIndices) {
-            if (sharedCommands.get(indx).getCommand() == 32) {
-                mainView.displayError("Cannot move mixed command down");
-                return;
+            if (sharedCommands.get(indx).getCommand() == CommandPair.EMPTY) {
+                return "Cannot move mixed command down";
             }
         }
 
@@ -956,44 +951,45 @@ public class MainController implements ControllerInterface, SynchronizedControll
                         rankIndices[j] = i;
                         break;
                     } else if (countsToIndex < 0) {
-                        mainView.displayError("Something went wrong! Could not move commands down.");
-                        return;
+                        return "Something went wrong! Could not move commands down.";
                     }
                     countsToIndex -= allCommands.get(rankName).get(i).getCounts();
                 }
             }
 
             String errorMessage = drillInfo.getMoves().get(currentMove).moveCommandsDown(rankName, rankIndices);
-            if (errorMessage.isEmpty()) {
-                modified = true;
-                mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
+            if (!errorMessage.isEmpty()) {
+                return errorMessage;
+                
             }
-            else {
-                mainView.displayError(errorMessage);
-            }
+            modified = true;
+            mainView.updateSelectedRank(selectedRanks);
         }
+
+        return "";
     }
 
     /**
      * Merges the specified commands if they are of the same type
-     * into one command of their combined length
+     * into one command of their combined length.  Updates the
+     * display afterwards.
      *
      * @param commandIndices - the indices of commands to be merged
+     * @return - An error messsge iff merging the command failed. An empty string
+     *         otherwise.
      */
     @Override
-    public void mergeCommands(int[] commandIndices) {
+    public String mergeCommands(int[] commandIndices) {
         HashMap<String,ArrayList<CommandPair>> allCommands = drillInfo.getMoves().get(currentMove).getCommands();
         ArrayList<CommandPair> sharedCommands = getSharedCommands(selectedRanks, allCommands);
 
         for (int indx : commandIndices) {
-            if (sharedCommands.get(indx).getCommand() == 32) {
-                mainView.displayError("Cannot merge mixed commands");
-                return;
+            if (sharedCommands.get(indx).getCommand() == CommandPair.EMPTY) {
+                return "Cannot merge mixed commands";
             }
 
-            if (sharedCommands.get(indx).getCommand() == 19) {
-                mainView.displayError("Cannot merge DTP commands");
-                return;
+            if (sharedCommands.get(indx).getCommand() == CommandPair.DTP) {
+                return "Cannot merge DTP commands";
             }
         }
 
@@ -1009,27 +1005,49 @@ public class MainController implements ControllerInterface, SynchronizedControll
                         rankIndices[j] = i;
                         break;
                     } else if (countsToIndex < 0) {
-                        mainView.displayError("Something went wrong! Could not merge commands.");
-                        return;
+                        return "Something went wrong! Could not merge commands.";
                     }
                     countsToIndex -= allCommands.get(rankName).get(i).getCounts();
                 }
             }
 
             String errorMessage = drillInfo.getMoves().get(currentMove).mergeCommands(rankName, rankIndices);
-            if (errorMessage.isEmpty()) {
-                modified = true;
-                mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
+            if (!errorMessage.isEmpty()) {
+                return errorMessage;
             }
-            else {
-                mainView.displayError(errorMessage);
-            }
+            modified = true;
+            mainView.updateSelectedRank(selectedRanks);
         }
+
+        return "";
     }
 
     /**
-     * Splits the specified command into two separate commands of the same type
-     * at the count specified
+     * Returns true if the command at the given index can be split.  False otherwise.
+     * 
+     * @param index - The index of the command to split.
+     * @return - True if the command at the given index can be split.  False otherwise.
+     */
+    @Override
+    public String canSplit(int index) {
+        final HashMap<String,ArrayList<CommandPair>> allCommands = drillInfo.getMoves().get(currentMove).getCommands();
+        final ArrayList<CommandPair> sharedCommands = getSharedCommands(selectedRanks, allCommands);
+        return canSplit(index, sharedCommands);
+    }
+
+    private String canSplit(int index, ArrayList<CommandPair> sharedCommands) {
+        if (sharedCommands.get(index).getCommand() == CommandPair.EMPTY) {
+            return "Cannot split mixed command";
+        }
+        if (sharedCommands.get(index).getCommand() == CommandPair.DTP) {
+            return "Cannot split DTP command";
+        }
+        return "";
+    }
+
+    /**
+     * Splits the specified command at the given index into two separate commands of
+     * the same type at the count specified. Updates the display afterwards.
      *
      * @param index - the index of command to be split
      * @param count - the count at which the command will be split
@@ -1037,26 +1055,15 @@ public class MainController implements ControllerInterface, SynchronizedControll
      */
     @Override
     public String splitCommand(int index, int count) {
-        // TODO: this check should really be included int he splitCommand function, not here, but I
-        // dont want it to close
-        // the window if this check is done, but i do want it to close it for others...
-        // this will need to be re coded
-
         HashMap<String,ArrayList<CommandPair>> allCommands = drillInfo.getMoves().get(currentMove).getCommands();
         ArrayList<CommandPair> sharedCommands = getSharedCommands(selectedRanks, allCommands);
 
+        final String canSplitErrorMessage = canSplit(index, sharedCommands);
+        if (!canSplitErrorMessage.isEmpty()) {
+            return canSplitErrorMessage;
+        }
         if (count >= sharedCommands.get(index).getCounts()) {
             return "The specified count was larger than counts in the move.";
-        }
-
-        if (sharedCommands.get(index).getCommand() == 32) {
-            mainView.displayError("Cannot split mixed command");
-            return "";
-        }
-
-        if (sharedCommands.get(index).getCommand() == 19) {
-            mainView.displayError("Cannot split DTP command");
-            return "";
         }
 
         for (String rankName : selectedRanks) {
@@ -1069,20 +1076,17 @@ public class MainController implements ControllerInterface, SynchronizedControll
                     rankIndex = i;
                     break;
                 } else if (countsToIndex < 0) {
-                    mainView.displayError("Something went wrong! Could not rename rank.");
-                    return "";
+                    return "Something went wrong! Could not split the command.";
                 }
                 countsToIndex -= allCommands.get(rankName).get(i).getCounts();
             }
 
-            String errorMessage = drillInfo.getMoves().get(currentMove).splitCommand(rankName, rankIndex, count);
-            if (errorMessage.isEmpty()) {
-                modified = true;
-                mainView.updateSelectedRank(selectedRanks, getSharedCommands(selectedRanks,drillInfo.getMoves().get(currentMove).getCommands()));
+            final String errorMessage = drillInfo.getMoves().get(currentMove).splitCommand(rankName, rankIndex, count);
+            if (!errorMessage.isEmpty()) {
+                return errorMessage;
             }
-            else {
-                mainView.displayError(errorMessage);
-            }
+            modified = true;
+            mainView.updateSelectedRank(selectedRanks);
         }
 
         return "";
@@ -1139,31 +1143,19 @@ public class MainController implements ControllerInterface, SynchronizedControll
      * @return - the number of the current move
      */
     @Override
-    public int getCurrentMove() {
+    public int getCurrentMoveNumber() {
         return currentMove;
     }
 
     /**
-     * Returns additional indicators to be displayed to the user not stored as ranks
-     *
-     * @return - a hashmap mapping the name of the indicator to its position
+     * Returns the current move.
+     * 
+     * @return - the current move.
      */
-    @Override
-    public HashMap<String, RankPosition> getTransientRanks() {
-        return transientRanks;
+    public Move getCurrentMove() {
+        return drillInfo.getMoves().get(currentMove);
     }
 
-    /**
-     * Adds a temporary indicator to show the user how the rank would look if drawn to
-     * the current position
-     *
-     * @param temporaryDrawingRank - the position of the indicator to be drawn
-     */
-    @Override
-    public void addTemporaryDrawingRank(RankPosition temporaryDrawingRank) {
-        transientRanks.put(TEMP_DRAWING_RANK, temporaryDrawingRank);
-        mainView.updateView(currentMove, drillInfo.getMoves().get(currentMove).getCounts());
-    }
 }
 
 

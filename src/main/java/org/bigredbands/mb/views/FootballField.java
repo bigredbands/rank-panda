@@ -21,7 +21,6 @@ import java.util.HashSet;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import org.bigredbands.mb.controllers.MainController;
 import org.bigredbands.mb.models.Point;
 import org.bigredbands.mb.models.RankPosition;
 
@@ -78,13 +77,18 @@ public class FootballField extends JPanel {
     private int xMouseOval = -1;
     private int yMouseOval = -1;
 
+    // The name of the indicator used to show the user how their rank will look if drawn
+    // at the mouse's current position
+    public static final String TEMP_DRAWING_RANK = "TEMP_DRAWING_RANK";
+
+    // Additional visual indicators to be displayed to the user, but not stored as ranks
+    private HashMap<String, RankPosition> transientRanks;
 
     /**
      * Creates a static football field which only displays one move.
      * @param mainView - the MainView used to call functions to interact with the controller and other views.
      * @param moveNumber - the move number to display.
      */
-
     public FootballField(MainView mainView, int moveNumber) {
         super();
 
@@ -103,6 +107,7 @@ public class FootballField extends JPanel {
 
         this.mainView = mainView;
         this.moveNumber = -1;
+        transientRanks = new HashMap<String, RankPosition>();
 
         repaint();
     }
@@ -193,7 +198,7 @@ public class FootballField extends JPanel {
                 lineMap = createShapes(mainView.getRankPositions(), topLeftX, topLeftY, scaleFactor);
             }
             drawRanks(lineMap,
-                    createShapes(mainView.getTransientRanks(), topLeftX, topLeftY, scaleFactor),
+                    createShapes(transientRanks, topLeftX, topLeftY, scaleFactor),
                     mainView.getSelectedRanks(),
                     g,
                     topLeftX,
@@ -218,7 +223,7 @@ public class FootballField extends JPanel {
         }
         //else, create a static football field for the specified move number
         else {
-            if (moveNumber == mainView.getCurrentMove()) {
+            if (moveNumber == mainView.getCurrentMoveNumber()) {
                 //Set background to a transparent blue color
                 Color backgroundColor = new Color(0,0,255,100);
                 g.setColor(backgroundColor);
@@ -367,7 +372,7 @@ public class FootballField extends JPanel {
         gDash.setStroke(new BasicStroke(twoAndHalfYdThick));
         for (int i = 0; i <22; i++) { // x's the same for each iteration
             if (i==8){
-//                //draw nothing - hashes
+                //draw nothing - hashes
             }
             else{
             gDash.drawLine((margin + dumbBufferWidth + (dim.width
@@ -636,7 +641,7 @@ public class FootballField extends JPanel {
                         // If this is the first click, you've just placed the tail of the new rank
                         projectView.setMessageLabelText("Click where the head of the new rank is located");
                         drawRankPoint(p);
-                        mainView.addTemporaryDrawingRank(new RankPosition(new Point(xToYards, yToYards), new Point(xToYards, yToYards)));
+                        addTemporaryDrawingRank(new RankPosition(new Point(xToYards, yToYards), new Point(xToYards, yToYards)));
                     }
                     else if (clicks >= 2) {
                         // If this is the second click, you've just placed the head (i.e., second point)
@@ -653,7 +658,7 @@ public class FootballField extends JPanel {
                             name = projectView.getRankNameText();
 
                             // Add the new rank to the list of ranks
-                            RankPosition rankPosition = mainView.getTransientRanks().remove(MainController.TEMP_DRAWING_RANK);
+                            RankPosition rankPosition = transientRanks.remove(TEMP_DRAWING_RANK);
                             rankPosition.getFront().setPoint(xToYards, yToYards);
                             mainView.addRank(name, rankPosition);
 
@@ -681,14 +686,14 @@ public class FootballField extends JPanel {
                     if (clicks == 1) {
                         // If this is the first click, set that point as the tail of the rank
                         drawDTPPoint(p);
-                        mainView.addTemporaryDrawingRank(new RankPosition(new Point(xToYards, yToYards),
+                        addTemporaryDrawingRank(new RankPosition(new Point(xToYards, yToYards),
                                 new Point(xToYards, yToYards)));
                     }
                     else if (clicks == 2) {
                         drawRankPoint(p);
 
                         // Set the DTP rank to (initially) be this
-                        RankPosition rankPosition = mainView.getTransientRanks().remove(MainController.TEMP_DRAWING_RANK);
+                        RankPosition rankPosition = transientRanks.remove(TEMP_DRAWING_RANK);
                         rankPosition.getFront().setPoint(xToYards, yToYards);
                         projectView.setDTPDest(rankPosition);
 
@@ -733,7 +738,7 @@ public class FootballField extends JPanel {
                             projectView.repaintFieldPanel();
                             projectView.repaintScrollBar();
                         }
-                    } else if(SwingUtilities.isRightMouseButton(arg0) && mainView.getCurrentMove() == 0) {
+                    } else if(SwingUtilities.isRightMouseButton(arg0) && mainView.getCurrentMoveNumber() == 0) {
                         // Right clicked on the normal rank in Move 0 - swap between line and curve rank
 
                         for (String rankName : lineMap.keySet()) {
@@ -759,7 +764,7 @@ public class FootballField extends JPanel {
                             }
                         }
                     } else if(SwingUtilities.isLeftMouseButton(arg0) ||
-                            (SwingUtilities.isRightMouseButton(arg0) && mainView.getCurrentMove() != 0)) {
+                            (SwingUtilities.isRightMouseButton(arg0) && mainView.getCurrentMoveNumber() != 0)) {
                         // Normal selection of a rank - if it's a control-press, add the rank to the list of
                         // those currently selected
                         System.out.println("Checking rank selection...");
@@ -966,7 +971,7 @@ public class FootballField extends JPanel {
             public void mouseDragged(MouseEvent arg0) {
                 // Dragging ranks on move 0
                 RankPosition DTPRank = mainView.getDTPRank();
-                if(mainView.getDrag() && !addDTPFlag && mainView.getCurrentMove() == 0){
+                if(mainView.getDrag() && !addDTPFlag && mainView.getCurrentMoveNumber() == 0){
                     HashSet<String> ranks = mainView.getSelectedRanks();
 
                     int newX = arg0.getX();
@@ -1126,7 +1131,7 @@ public class FootballField extends JPanel {
                     xDragOrigin = newX;
                     yDragOrigin = newY;
 
-                    if(mainView.getCurrentMove()==0) {
+                    if(mainView.getCurrentMoveNumber()==0) {
                         for(String rankName : mainView.getSelectedRanks()) {
                             mainView.updateInitialPosition(rankName, mainView.getRankPositions().get(rankName));
                         }
@@ -1262,7 +1267,7 @@ public class FootballField extends JPanel {
                         yMouseOval = (int)(topLeftY + yToYards * scaleFactor);
                         repaint();
                     } else if (clicks == 1) {
-                        RankPosition temporaryDrawingRank = mainView.getTransientRanks().get(MainController.TEMP_DRAWING_RANK);
+                        RankPosition temporaryDrawingRank = transientRanks.get(TEMP_DRAWING_RANK);
                         temporaryDrawingRank.getFront().setPoint(xToYards, yToYards);
                         repaint();
                     }
@@ -1283,7 +1288,7 @@ public class FootballField extends JPanel {
                         yMouseOval = (int)(topLeftY + yToYards * scaleFactor);
                         repaint();
                     } else if (clicks == 1) {
-                        RankPosition temporaryDrawingRank = mainView.getTransientRanks().get(MainController.TEMP_DRAWING_RANK);
+                        RankPosition temporaryDrawingRank = transientRanks.get(TEMP_DRAWING_RANK);
                         temporaryDrawingRank.getFront().setPoint(xToYards, yToYards);
                         repaint();
                     }
@@ -1365,7 +1370,7 @@ public class FootballField extends JPanel {
             addDTPFlag = false;
             xMouseOval = 0;
             yMouseOval = 0;
-            mainView.getTransientRanks().remove(MainController.TEMP_DRAWING_RANK); // in case you're mid-draw
+            transientRanks.remove(TEMP_DRAWING_RANK); // in case you're mid-draw
         }
     }
 
@@ -1388,7 +1393,7 @@ public class FootballField extends JPanel {
             addRankFlag = false;
             xMouseOval = 0;
             yMouseOval = 0;
-            mainView.getTransientRanks().remove(MainController.TEMP_DRAWING_RANK); // in case you're mid-draw
+            transientRanks.remove(TEMP_DRAWING_RANK); // in case you're mid-draw
         }
     }
 
@@ -1617,5 +1622,16 @@ public class FootballField extends JPanel {
             g.setColor(Color.RED);
             g.setFont(new Font("",Font.BOLD,20));
         }
+    }
+
+    /**
+     * Adds a temporary indicator to show the user how the rank would look if drawn to
+     * the current position
+     *
+     * @param temporaryDrawingRank - the position of the indicator to be drawn
+     */
+    private void addTemporaryDrawingRank(RankPosition temporaryDrawingRank) {
+        transientRanks.put(TEMP_DRAWING_RANK, temporaryDrawingRank);
+        mainView.updateView(mainView.getCurrentMoveNumber(), mainView.getCurrentMove().getCounts());
     }
 }

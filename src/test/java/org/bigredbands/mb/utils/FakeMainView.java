@@ -1,10 +1,8 @@
 package org.bigredbands.mb.utils;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
-import org.bigredbands.mb.models.CommandPair;
 import org.bigredbands.mb.models.RankPosition;
 import org.bigredbands.mb.views.ViewInterface;
 
@@ -52,7 +50,12 @@ public class FakeMainView implements ViewInterface {
     }
 
     @Override
-    public void updateSelectedRank(HashSet<String> rankNames, ArrayList<CommandPair> commands) {
+    public void updateSelectedRank(HashSet<String> rankNames) {
+        // No-op
+    }
+
+    @Override
+    public void clearSelectedRank() {
         // No-op
     }
 
