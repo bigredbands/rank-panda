@@ -1,9 +1,8 @@
 package org.bigredbands.mb.views;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
 import javax.swing.Box;
@@ -14,17 +13,17 @@ import javax.swing.JScrollPane;
 import javax.swing.border.LineBorder;
 
 import org.bigredbands.mb.controllers.ControllerInterface;
+import org.bigredbands.mb.models.Field;
 
 public class MoveScrollBar {
 
-    private MainView mainView;
+    private ControllerInterface controller;
 
     private JScrollPane moveScrollPane;
     private JPanel moveContainer;
 
     private final int THUMBNAIL_WIDTH = 131; //Sweet spot that no horizontal scroll bar is needed
-    //private final Dimension MOVE_THUMBNAIL_SIZE = new Dimension(THUMBNAIL_WIDTH, (int)(THUMBNAIL_WIDTH * (FootballField.FIELD_HEIGHT/FootballField.FIELD_LENGTH)));  //without end zones
-    private final Dimension MOVE_THUMBNAIL_SIZE = new Dimension(THUMBNAIL_WIDTH, (int)(THUMBNAIL_WIDTH * (1.0f/FootballField.WIDTH_TO_HEIGHT_RATIO)));  //with end zones
+    private final Dimension MOVE_THUMBNAIL_SIZE = new Dimension(THUMBNAIL_WIDTH, THUMBNAIL_WIDTH);
 
     private final Dimension MOVE_THUMBNAIL_MARGIN = new Dimension(0,20);
 
@@ -32,12 +31,12 @@ public class MoveScrollBar {
 
     private final Dimension MOVE_LABEL_SIZE = new Dimension(10, 20);
 
-    private ArrayList<FootballField> thumbnailList = new ArrayList<FootballField>();
+    private ArrayList<MoveThumbnail> thumbnailList = new ArrayList<MoveThumbnail>();
 
     private ArrayList<JPanel> moveComponentList = new ArrayList<JPanel>();
 
-    public MoveScrollBar(MainView main) {
-        this.mainView = main;
+    public MoveScrollBar(ControllerInterface controller) {
+        this.controller = controller;
 
         //create the jscrollpane
         moveScrollPane = new JScrollPane();
@@ -98,96 +97,39 @@ public class MoveScrollBar {
     }
 
     public void repaintScrollBar() {
-        for (FootballField move : thumbnailList) {
+        for (MoveThumbnail move : thumbnailList) {
             move.repaint();
         }
     }
 
     private void addMove(final int moveNumber) {
-        /*JButton moveButton = new JButton("Move " + moveNumber);
-        moveButton.setAlignmentX(0.5f);
-        moveButton.setPreferredSize(MOVE_THUMBNAIL_SIZE);
-        moveButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                controller.changeMoves(moveNumber);
-            }
-        });
-        moveContainer.add(moveButton);*/
-        //MoveThumbnail moveThumbnail = new MoveThumbnail(mainView, ((float)THUMBNAIL_WIDTH)/((float) (FootballField.FIELD_LENGTH + 2*FootballField.END_ZONE_LENGTH)), MOVE_THUMBNAIL_SIZE, moveNumber);
-        FootballField moveThumbnail = new FootballField(mainView, moveNumber);
-        //Center the moveThumbnail
-        moveThumbnail.setAlignmentX(0.5f);
-
-        //Ensure the moveThumbnail is properly sized
-        moveThumbnail.setPreferredSize(MOVE_THUMBNAIL_SIZE);
-        moveThumbnail.setMaximumSize(MOVE_THUMBNAIL_SIZE);
-
-        //Set up the listener for the moveThumbnail
-        moveThumbnail.addMouseListener(new MouseListener() {
-
-            @Override
-            public void mouseClicked(MouseEvent arg0) {
-                // TODO: NOPE
-                mainView.changeMoves(moveNumber);
-            }
-
-            public void mouseEntered(MouseEvent arg0) {}
-
-            public void mouseExited(MouseEvent arg0) {}
-
-            public void mousePressed(MouseEvent arg0) {}
-
-            public void mouseReleased(MouseEvent arg0) {}
-        });
         JPanel oneMoveContainer = new JPanel();
-        oneMoveContainer.setLayout(new BoxLayout(oneMoveContainer,BoxLayout.Y_AXIS));
+        oneMoveContainer.setLayout(new BoxLayout(oneMoveContainer, BoxLayout.Y_AXIS));
+        oneMoveContainer.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        MoveThumbnail moveThumbnail = new MoveThumbnail(Field.CollegeFootball, controller, moveNumber);
+        moveThumbnail.setPreferredSize(MOVE_THUMBNAIL_SIZE);
+        moveThumbnail.setAlignmentX(Component.CENTER_ALIGNMENT);
         oneMoveContainer.add(moveThumbnail);
+
         oneMoveContainer.add(Box.createRigidArea(MOVE_LABEL_MARGIN));
+
         JLabel moveLabel = new JLabel("Move " + moveNumber);
-        moveLabel.setAlignmentX(0.5f);
+        moveLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         oneMoveContainer.add(moveLabel);
 
-        //Space between moveThumbnails, this is necessary so they don't press up against each other
+        // Space between moveThumbnails, this is necessary so they don't press
+        // up against each other
         oneMoveContainer.add(Box.createRigidArea(MOVE_THUMBNAIL_MARGIN));
 
         moveContainer.add(oneMoveContainer);
         if(moveComponentList.size() > moveNumber) {
-            moveComponentList.set(moveNumber,oneMoveContainer);
-            thumbnailList.set(moveNumber,moveThumbnail);
+            moveComponentList.set(moveNumber, oneMoveContainer);
+            thumbnailList.set(moveNumber, moveThumbnail);
         } else {
-            moveComponentList.add(moveNumber,oneMoveContainer);
-            thumbnailList.add(moveNumber,moveThumbnail);
+            moveComponentList.add(moveNumber, oneMoveContainer);
+            thumbnailList.add(moveNumber, moveThumbnail);
         }
-
-        /*FootballField footballField = new FootballField(mainView);
-        footballField.setAlignmentX(0.5f);
-        footballField.setPreferredSize(MOVE_THUMBNAIL_SIZE);
-        footballField.addMouseListener(new MouseListener() {
-
-            @Override
-            public void mouseClicked(MouseEvent arg0) {
-                mainView.changeMoves(moveNumber);
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent arg0) {
-            }
-
-            @Override
-            public void mouseExited(MouseEvent arg0) {
-            }
-
-            @Override
-            public void mousePressed(MouseEvent arg0) {
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent arg0) {
-            }
-        });
-        moveContainer.add(footballField);
-        thumbnailList.add(footballField);*/
     }
 
     private void deleteMove(final int moveNumber) {

@@ -1108,7 +1108,7 @@ public class ProjectView {
         testPanel.add(deleteMove);
 
         // initialize and create the side scrollbar
-        moveScrollBar = new MoveScrollBar(mainView);
+        moveScrollBar = new MoveScrollBar(controller);
         moveScrollBar.createNewScrollBar(mainView.getNumberOfMoves());
         rightHolder.add(moveScrollBar.getScrollPane(), BorderLayout.CENTER);
 
